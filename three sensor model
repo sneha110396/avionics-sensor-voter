@@ -55,7 +55,7 @@ VAR
 	mc_count1: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 1 with sensor 2 and 3
 	mc_count2: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 2 with sensor 3 and 1
 	mc_count3: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 3 with sensor 1 snd 2
-	mc_next : 0..MC_PERSISTENCE;                   --variable to measure miscompare persistence of two sensors when the third is isolsted
+	mc_next : 0..MC_PERSISTENCE;                   --variable to measure miscompare persistence of two sensors when the third is isolated
 	isolated1 : boolean;                           --TRUE if sensor 1 is isolated
 	isolated2 : boolean;                           --TRUE if sensor 2 is isolated
 	isolated3 : boolean;                           --TRUE if sendor 3 is isolated

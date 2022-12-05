@@ -168,7 +168,7 @@ DEFINE
 			esac;
 
 
-	
+--Invariants	
 
 INVAR !(sensor1.fault!=0 & sensor2.fault!=0) 
 INVAR !(sensor1.fault!=0 & sensor3.fault!=0)
@@ -176,6 +176,8 @@ INVAR !(sensor2.fault!=0 & sensor3.fault!=0)
 INVAR !(sensor1.hw_valid=FALSE & sensor2.hw_valid=FALSE)
 INVAR !(sensor2.hw_valid=FALSE & sensor3.hw_valid=FALSE)
 INVAR !(sensor3.hw_valid=FALSE & sensor1.hw_valid=FALSE)
+
+--properties to check
 
 CTLSPEC AG(numActive=2-> (AG(numActive!=3)))
 CTLSPEC AG(numActive=1-> (AG(numActive!=2)))

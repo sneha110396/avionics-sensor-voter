@@ -42,7 +42,7 @@ MODULE main               			       --the voter
 DEFINE
 	HW_PERSISTENCE := 4;                           --hardware persistence 
 	MC_PERSISTENCE := 4;                           --miscompare persistence
-    	MC_val_threshold := 3;                         --two sensor miscompare if their signal value differ more than this threshold
+    	MC_val_threshold := 2;                         --two sensor miscompare if their signal value differ more than this threshold
 
 VAR
    	rWorld : realWorld();

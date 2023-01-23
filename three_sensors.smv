@@ -1,0 +1,192 @@
+MODULE realWorld                     -- Generating real world signal values
+
+VAR
+	out : MIN_VAL..MAX_VAL;
+DEFINE
+	MAX_VAL:= 6;
+	MIN_VAL:= -6;
+
+
+
+MODULE sensor(world)
+
+VAR
+	hw_valid: boolean;         -- TRUE means hardware flag is indicating valid, FALSE otherwise
+	fault: 0..2;               -- 0 means no fault
+	                           -- 1 means signal is an arbitrary value
+				   -- 2 means hw_valid may not be correct
+	noise: -1..1;
+	signal: (world.MIN_VAL) .. (world.MAX_VAL);
+	
+	
+
+ASSIGN
+	init(fault) := 0;
+	init(hw_valid) := TRUE;
+	next(hw_valid) := case
+				fault=0 : TRUE;
+				TRUE : {TRUE , FALSE};
+				esac;
+	init(signal) := case
+			fault=0 & (abs(world.out + noise) <=world.MAX_VAL) : world.out + noise;
+			fault=0 & ((world.out + noise) > world.MAX_VAL) : world.MAX_VAL;
+			fault=0 & ((world.out + noise) < world.MIN_VAL) : world.MIN_VAL;
+			esac;
+	next(signal) := case
+			next(fault)=0 & (abs(next(world.out) + next(noise)) <=world.MAX_VAL) : next(world.out) + next(noise);
+			next(fault)=0 & ((next(world.out) + next(noise)) > world.MAX_VAL) : world.MAX_VAL;
+			next(fault)=0 & ((next(world.out) + next(noise)) < world.MIN_VAL) : world.MIN_VAL;
+			TRUE : -6..6;
+			esac;
+
+
+MODULE main               			       --the voter
+
+DEFINE
+	HW_PERSISTENCE := 4;                           --hardware persistence 
+	MC_PERSISTENCE := 4;                           --miscompare persistence
+    	MC_val_threshold := 2;                         --two sensor miscompare if their signal value differ more than this threshold
+
+VAR
+   	rWorld : realWorld();
+	sensor1 : sensor(rWorld);
+	sensor2 : sensor(rWorld);
+	sensor3 : sensor(rWorld);
+	hw_count1: 0..HW_PERSISTENCE;                  --variable to measure hardware error persistence of sensor 1
+	hw_count2: 0..HW_PERSISTENCE;                  --variable to measure hardware error persistence of sensor 2
+	hw_count3: 0..HW_PERSISTENCE;                  --variable to measure hardware error persistence of sensor 3
+	mc_count1: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 1 with sensor 2 and 3
+	mc_count2: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 2 with sensor 3 and 1
+	mc_count3: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 3 with sensor 1 snd 2
+	mc_next : 0..MC_PERSISTENCE;                   --variable to measure miscompare persistence of two sensors when the third is isolated
+	isolated1 : boolean;                           --TRUE if sensor 1 is isolated
+	isolated2 : boolean;                           --TRUE if sensor 2 is isolated
+	isolated3 : boolean;                           --TRUE if sendor 3 is isolated
+	
+
+ASSIGN 
+	init(isolated1) := FALSE;
+	next(isolated1) := case
+				(next(hw_count1)=HW_PERSISTENCE) | (numActive=3 & next(mc_count1)=MC_PERSISTENCE) : TRUE;
+				isolated1 : TRUE;
+				TRUE : FALSE;
+				esac;
+	init(isolated2) := FALSE;
+	next(isolated2) := case
+				(next(hw_count2)=HW_PERSISTENCE) | (numActive=3 & next(mc_count2)=MC_PERSISTENCE) : TRUE;
+				isolated2 : TRUE;
+				TRUE : FALSE;
+				esac;
+	init(isolated3) := FALSE;
+	next(isolated3) := case
+				(next(hw_count3)=HW_PERSISTENCE) | (numActive=3 & next(mc_count3)=MC_PERSISTENCE) : TRUE;
+				isolated3 : TRUE;
+				TRUE : FALSE;
+				esac;
+	init(hw_count1) := 0;
+	next(hw_count1) := case
+				(sensor1.hw_valid = FALSE) & (hw_count1<HW_PERSISTENCE) : hw_count1+1;
+				sensor1.hw_valid = TRUE : 0;
+				hw_count1=HW_PERSISTENCE : HW_PERSISTENCE;
+				TRUE : hw_count1;
+				esac;
+	init(hw_count2) := 0;
+	next(hw_count2) := case
+				(sensor2.hw_valid = FALSE) & (hw_count2<HW_PERSISTENCE) : hw_count2+1;
+				sensor2.hw_valid = TRUE : 0;
+				hw_count2=HW_PERSISTENCE : HW_PERSISTENCE;
+				TRUE : hw_count2;
+				esac;
+	init(hw_count3) := 0;
+	next(hw_count3) := case
+				(sensor3.hw_valid = FALSE) & (hw_count3<HW_PERSISTENCE) : hw_count3+1;
+				sensor3.hw_valid = TRUE : 0;
+				hw_count3=HW_PERSISTENCE : HW_PERSISTENCE;
+				TRUE : hw_count3;
+				esac;
+	init(mc_count1) := 0;
+	next(mc_count1) := case
+				(numActive=3) & miscompare1 & (mc_count1<MC_PERSISTENCE) : mc_count1 +1;
+				(numActive=3) & !miscompare1 & (mc_count1<MC_PERSISTENCE): 0;
+				mc_count1=MC_PERSISTENCE : MC_PERSISTENCE;
+				TRUE : mc_count1;
+				esac;
+	init(mc_count2) := 0;
+	next(mc_count2) := case
+				(numActive=3) & miscompare2 & (mc_count2<MC_PERSISTENCE) : mc_count2 +1;
+				(numActive=3) & !miscompare2 & (mc_count2<MC_PERSISTENCE): 0;
+				mc_count2=MC_PERSISTENCE : MC_PERSISTENCE;
+				TRUE : mc_count2;
+				esac;
+	init(mc_count3) := 0;
+	next(mc_count3) := case
+				numActive=3 & miscompare3 & (mc_count3<MC_PERSISTENCE) : mc_count3 +1;
+				numActive=3 & !miscompare3 & (mc_count3<MC_PERSISTENCE) : 0;
+				mc_count3=MC_PERSISTENCE : MC_PERSISTENCE;
+				TRUE : mc_count3;
+				esac;
+	init(mc_next) := 0;
+	next(mc_next) := case
+				numActive=2 & isolated3 & (diff_12 > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
+				numActive=2 & isolated3 & (diff_12 <= MC_val_threshold) : 0;
+				numActive=2 & isolated3 & (diff_12 > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
+				numActive=2 & isolated2 & (diff_13 > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
+				numActive=2 & isolated2 & (diff_13 <= MC_val_threshold) : 0;
+				numActive=2 & isolated2 & (diff_13 > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
+				numActive=2 & isolated1 & (diff_23 > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
+				numActive=2 & isolated1 & (diff_23 <= MC_val_threshold) : 0;
+				numActive=2 & isolated1 & (diff_23 > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
+				TRUE : mc_next;
+				esac;
+							
+DEFINE
+	diff_12 := abs(sensor1.signal - sensor2.signal);
+	diff_23 := abs(sensor2.signal - sensor3.signal);
+	diff_13 := abs(sensor1.signal - sensor3.signal);
+	miscompare3 :=  (diff_13 > MC_val_threshold) & (diff_23 > MC_val_threshold);
+	miscompare2 :=  (diff_12 > MC_val_threshold) & (diff_23 > MC_val_threshold);
+	miscompare1 :=  (diff_13 > MC_val_threshold) & (diff_12 > MC_val_threshold);
+	numActive := case
+			!isolated1 & !isolated2 & !isolated3 : 3;
+			(isolated1 & !isolated2 & !isolated3) | (!isolated1 & isolated2 & !isolated3) | (!isolated1 & !isolated2 & isolated3) : 2;
+			(isolated1 & isolated2 & !isolated3) | (!isolated1 & isolated2 & isolated3) | (isolated1 & !isolated2 & isolated3) : 1;
+			isolated1 & isolated2 & isolated3 : 0;
+			esac;
+	outputSignal := case
+			numActive=3 : (sensor1.signal + sensor2.signal + sensor3.signal)/3;
+			numActive=2 & isolated1: (sensor2.signal + sensor3.signal)/2;
+			numActive=2 & isolated2: (sensor3.signal + sensor1.signal)/2;
+			numActive=2 & isolated3: (sensor1.signal + sensor2.signal)/2;
+			numActive=1 & isolated1 & isolated2 : sensor3.signal;
+			numActive=1 & isolated2 & isolated3 : sensor1.signal;
+			numActive=1 & isolated3 & isolated1 : sensor2.signal;
+			numActive=0 : -100;
+			esac;
+	outputValid := case
+			numActive=3 : TRUE;
+			numActive=2 & mc_next=MC_PERSISTENCE : FALSE;
+			numActive=2 & mc_next < MC_PERSISTENCE : TRUE;
+			numActive=1 : TRUE;
+			numActive=0 : FALSE;
+			esac;
+
+
+--Invariants	
+
+INVAR !(sensor1.fault!=0 & sensor2.fault!=0) 
+INVAR !(sensor1.fault!=0 & sensor3.fault!=0)
+INVAR !(sensor2.fault!=0 & sensor3.fault!=0)
+INVAR !(sensor1.hw_valid=FALSE & sensor2.hw_valid=FALSE)
+INVAR !(sensor2.hw_valid=FALSE & sensor3.hw_valid=FALSE)
+INVAR !(sensor3.hw_valid=FALSE & sensor1.hw_valid=FALSE)
+
+--properties to check
+
+--CTLSPEC AG(numActive=2-> (AG(numActive!=3)))
+--CTLSPEC AG(numActive=1-> (AG(numActive!=2)))
+--CTLSPEC AG(numActive=0-> (!EF(numActive=1))) 
+--CTLSPEC AG(numActive=3 -> EF(numActive=2))
+--CTLSPEC AG(numActive=2 -> EF(numActive=1))
+--CTLSPEC AG(numActive=1-> EF(numActive=0))
+--CTLSPEC AG((outputSignal= rWorld.out) -> AF(A[(outputSignal = rWorld.out) U ((outputSignal= rWorld.out) & outputValid)] | (outputSignal = rWorld.out)))
+CTLSPEC AG((numActive=2 & outputValid) -> EF(numActive=2 & !outputValid))

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>three_sensors</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>toolbox.builder.TLAParserBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>toolbox.natures.TLANature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>realWorld.tla</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/realWorld.tla</locationURI>
+		</link>
+		<link>
+			<name>sensors.tla</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/sensors.tla</locationURI>
+		</link>
+		<link>
+			<name>three_sensors.tla</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/three_sensors.tla</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>

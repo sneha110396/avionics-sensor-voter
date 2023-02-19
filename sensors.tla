@@ -1,25 +1,26 @@
 ------------------------------ MODULE sensors ------------------------------
-EXTENDS Integers, realWorld
-VARIABLES hw_valid, noise, fault, signal
+EXTENDS realWorld
 
-init_sensors == (hw_valid = TRUE) /\ (noise \in -1..1) /\ (fault=0) /\ (signal \in MIN_VAL..MAX_VAL)
+fault == CHOOSE x \in 0..2 : TRUE
 
-invariant_hw_valid == (fault'=0) => (hw_valid'=TRUE)
+noise == CHOOSE x \in -1..1 : TRUE
 
 f(n,w,m) == CASE (w+n) > m -> m
            []   (w+n) < -m -> -m
            [] OTHER -> w+n
            
-invariant_signal == IF fault'=0
-                     THEN signal' = f(noise', world_val', MAX_VAL)
-                     ELSE signal' \in MIN_VAL..MAX_VAL
+signal == IF fault=0
+          THEN f(noise, world_val, MAX_VAL)
+          ELSE CHOOSE x \in MIN_VAL..MAX_VAL : TRUE
            
 
-next_sensors == (fault' \in 0..2) /\ (noise' \in -1..1) /\ (hw_valid' \in {TRUE, FALSE}) /\ invariant_hw_valid /\ invariant_signal
+hw_valid == IF fault=0
+            THEN TRUE
+            ELSE CHOOSE x \in {TRUE, FALSE} : TRUE
 
 
 
 =============================================================================
 \* Modification History
-\* Last modified Sun Feb 05 15:26:07 IST 2023 by 112102006
+\* Last modified Sun Feb 19 19:16:08 IST 2023 by 112102006
 \* Created Thu Feb 02 21:42:32 IST 2023 by 112102006EXTENDS Integers, realWorld

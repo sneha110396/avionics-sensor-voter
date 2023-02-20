@@ -1,26 +1,28 @@
 ------------------------------ MODULE sensors ------------------------------
 EXTENDS realWorld
-
-fault == CHOOSE x \in 0..2 : TRUE
-
-noise == CHOOSE x \in -1..1 : TRUE
+VARIABLES fault, noise, signal, hw_valid
 
 f(n,w,m) == CASE (w+n) > m -> m
            []   (w+n) < -m -> -m
            [] OTHER -> w+n
            
-signal == IF fault=0
-          THEN f(noise, world_val, MAX_VAL)
-          ELSE CHOOSE x \in MIN_VAL..MAX_VAL : TRUE
+invariant_signal == IF fault'=0
+                    THEN signal' = f(noise', world_val', MAX_VAL)
+                    ELSE signal' \in MIN_VAL..MAX_VAL
+                    
+invariant_hw_valid == IF fault'=0
+                      THEN hw_valid' = TRUE
+                      ELSE hw_valid' \in {TRUE, FALSE}
+
+init_sensors == (fault=0) /\ (noise \in -1..1) /\ (signal = f(noise, world_val, MAX_VAL)) /\ (hw_valid = TRUE)
+
+next_sensors == (fault' \in 0..2) /\ (noise' \in -1..1) /\ (signal' \in MIN_VAL..MAX_VAL) /\ (hw_valid \in {TRUE, FALSE}) /\ invariant_signal /\ invariant_hw_valid
            
 
-hw_valid == IF fault=0
-            THEN TRUE
-            ELSE CHOOSE x \in {TRUE, FALSE} : TRUE
 
 
 
 =============================================================================
 \* Modification History
-\* Last modified Sun Feb 19 19:16:08 IST 2023 by 112102006
+\* Last modified Mon Feb 20 19:08:52 IST 2023 by 112102006
 \* Created Thu Feb 02 21:42:32 IST 2023 by 112102006EXTENDS Integers, realWorld

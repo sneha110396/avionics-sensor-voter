@@ -21,9 +21,24 @@
 			<locationURI>PARENT-1-PROJECT_LOC/realWorld.tla</locationURI>
 		</link>
 		<link>
+			<name>sensor1.tla</name>
+			<type>1</type>
+			<location>/home/112102006/Desktop/avionics-sensor-voter/sensor1.tla</location>
+		</link>
+		<link>
+			<name>sensor2.tla</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/sensor2.tla</locationURI>
+		</link>
+		<link>
+			<name>sensor3.tla</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/sensor3.tla</locationURI>
+		</link>
+		<link>
 			<name>sensors.tla</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/sensors.tla</locationURI>
+			<location>/home/112102006/Desktop/avionics-sensor-voter/sensors.tla</location>
 		</link>
 		<link>
 			<name>three_sensors.tla</name>

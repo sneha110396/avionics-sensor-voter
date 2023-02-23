@@ -11,11 +11,11 @@ VARIABLES hw_count1, hw_count2, hw_count3, mc_count1, mc_count2, mc_count3, isol
 
 isolate1_hw == IF hw_count1=HW_PERSISTENCE
                THEN isolated1'=TRUE
-               ELSE FALSE
+               ELSE TRUE
 
 isolate1_mc == IF (numActive=3 \/ mc_count1=MC_PERSISTENCE)
                THEN isolated1'=TRUE
-               ELSE FALSE
+               ELSE TRUE
 
 isolate1 == isolate1_hw \/ isolate1_mc
 
@@ -23,11 +23,11 @@ isolate1 == isolate1_hw \/ isolate1_mc
 
 isolate2_hw == IF hw_count2=HW_PERSISTENCE
                THEN isolated2'=TRUE
-               ELSE FALSE
+               ELSE TRUE
 
 isolate2_mc == IF (numActive=3 \/ mc_count2=MC_PERSISTENCE)
                THEN isolated2'=TRUE
-               ELSE FALSE
+               ELSE TRUE
 
 isolate2 == isolate2_hw \/ isolate2_mc
 
@@ -35,15 +35,15 @@ isolate2 == isolate2_hw \/ isolate2_mc
 
 isolate3_hw == IF hw_count3=HW_PERSISTENCE
                THEN isolated3'=TRUE
-               ELSE FALSE
+               ELSE TRUE
 
 isolate3_mc == IF (numActive=3 \/ mc_count3=MC_PERSISTENCE)
                THEN isolated3'=TRUE
-               ELSE FALSE
+               ELSE TRUE
 
 isolate3 == isolate3_hw \/ isolate3_mc
 
-isolation_handling == (isolate1 \/ UNCHANGED isolated1) /\ (isolate2 \/ UNCHANGED isolated2) /\ (isolate3 \/ UNCHANGED isolated3)
+isolate == isolate1 \/ isolate2 \/ isolate3
 
 \*hardware count increment due to hardware fault
 
@@ -164,8 +164,8 @@ outputValid_cal == CASE numActive=3 -> outputValid=TRUE
                    
 init1 == (hw_count1=0) /\ (hw_count2=0) /\ (hw_count3=0) /\ (mc_count1=0) /\ (mc_count2=0) /\ (mc_count3=0) /\ (isolated1=FALSE) /\ (isolated2=FALSE) /\ (isolated3=FALSE) /\ (numActive=3) /\ (outputValid=TRUE)
 init == init1 /\ init_world /\ init_sensor1 /\ init_sensor2 /\ init_sensor3
-next == next_world /\ next_sensor1 /\ next_sensor2 /\ next_sensor3 /\ isolation_handling /\ hw_count_increment /\ reset_hw_count /\ mc_count_increment /\ reset_mc_count /\ numActive_cal /\ outputValid_cal 
+next == next_world /\ next_sensor1 /\ next_sensor2 /\ next_sensor3 /\ (isolate \/ hw_count_increment \/ reset_hw_count \/ mc_count_increment \/ reset_mc_count) /\ numActive_cal /\ outputValid_cal 
 =============================================================================
 \* Modification History
-\* Last modified Thu Feb 23 19:20:19 IST 2023 by 112102006
+\* Last modified Thu Feb 23 18:25:36 IST 2023 by 112102006
 \* Created Thu Feb 02 20:09:21 IST 2023 by 112102006

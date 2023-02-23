@@ -45,44 +45,33 @@ isolate3 == isolate3_hw \/ isolate3_mc
 
 isolation_handling == (isolate1 \/ UNCHANGED isolated1) /\ (isolate2 \/ UNCHANGED isolated2) /\ (isolate3 \/ UNCHANGED isolated3)
 
-\*calculating numActive
-
-numActive_cal == \/ (isolated1'=TRUE /\ isolated2'=TRUE /\ isolated3'=TRUE /\ numActive'=0)
-                 \/ (isolated1'=FALSE /\ isolated2'=TRUE /\ isolated3'=TRUE /\ numActive'=1)
-                 \/ (isolated1'=TRUE /\ isolated2'=FALSE /\ isolated3'=TRUE /\ numActive'=1)
-                 \/ (isolated1'=TRUE /\ isolated2'=TRUE /\ isolated3'=FALSE /\ numActive'=1)
-                 \/ (isolated1'=TRUE /\ isolated2'=FALSE /\ isolated3'=FALSE /\ numActive'=2)
-                 \/ (isolated1'=FALSE /\ isolated2'=TRUE /\ isolated3'=FALSE /\ numActive'=2)
-                 \/ (isolated1'=FALSE /\ isolated2'=FALSE /\ isolated3'=TRUE /\ numActive'=2)
-                 \/ (isolated1'=FALSE /\ isolated2'=FALSE /\ isolated3'=FALSE /\ numActive'=3)
-
 \*hardware count increment due to hardware fault
 
 hw_count_incr1 == IF (hw_valid1' = FALSE \/ hw_count1 < HW_PERSISTENCE)
                   THEN hw_count1' = hw_count1+1
-                  ELSE FALSE
+                  ELSE TRUE
             
 hw_count_incr2 == IF (hw_valid2' = FALSE \/ hw_count2 < HW_PERSISTENCE)
                   THEN hw_count2' = hw_count2+1
-                  ELSE FALSE
+                  ELSE TRUE
             
 hw_count_incr3 == IF (hw_valid3' = FALSE \/ hw_count3 < HW_PERSISTENCE)
                   THEN hw_count3' = hw_count3+1
-                  ELSE FALSE
+                  ELSE TRUE
 
 \*Reset hardware count
 
-reset_hw_count1 == IF hw_valid1'=TRUE
-                   THEN hw_count1' = 0
-                   ELSE FALSE
+reset_hw_count1 == IF hw_valid1=TRUE
+                   THEN hw_count1 = 0
+                   ELSE TRUE
                    
-reset_hw_count2 == IF hw_valid2'=TRUE
-                   THEN hw_count2' = 0
-                   ELSE FALSE
+reset_hw_count2 == IF hw_valid2=TRUE
+                   THEN hw_count2 = 0
+                   ELSE TRUE
 
-reset_hw_count3 == IF hw_valid3'=TRUE
-                   THEN hw_count3' = 0
-                   ELSE FALSE
+reset_hw_count3 == IF hw_valid3=TRUE
+                   THEN hw_count3 = 0
+                   ELSE TRUE
 
 \*handling hardware count
 
@@ -92,43 +81,43 @@ hw_count_handling == /\ (hw_count_incr1 \/ reset_hw_count1 \/ UNCHANGED hw_count
 
 \*miscomapare count increment due to miscompare with two sensors
 
-mc_incr1 == IF (numActive=3 /\ abs(signal1' - signal2') > MC_VAL_THRESHOLD /\ abs(signal1' - signal3') > MC_VAL_THRESHOLD /\ mc_count1 < MC_PERSISTENCE)
+mc_incr1 == IF (numActive'=3 /\ abs(signal1' - signal2') > MC_VAL_THRESHOLD /\ abs(signal1' - signal3') > MC_VAL_THRESHOLD /\ mc_count1 < MC_PERSISTENCE)
             THEN mc_count1' = mc_count1 +1
             ELSE FALSE
             
-mc_incr2 == IF (numActive=3 /\ abs(signal1' - signal2') > MC_VAL_THRESHOLD /\ abs(signal2' - signal3') > MC_VAL_THRESHOLD /\ mc_count2 < MC_PERSISTENCE)
+mc_incr2 == IF (numActive'=3 /\ abs(signal1' - signal2') > MC_VAL_THRESHOLD /\ abs(signal2' - signal3') > MC_VAL_THRESHOLD /\ mc_count2 < MC_PERSISTENCE)
             THEN mc_count2' = mc_count2 +1
             ELSE FALSE
 
-mc_incr3 == IF (numActive=3 /\ abs(signal1' - signal3') > MC_VAL_THRESHOLD /\ abs(signal2' - signal3') > MC_VAL_THRESHOLD /\ mc_count3 < MC_PERSISTENCE)
+mc_incr3 == IF (numActive'=3 /\ abs(signal1' - signal3') > MC_VAL_THRESHOLD /\ abs(signal2' - signal3') > MC_VAL_THRESHOLD /\ mc_count3 < MC_PERSISTENCE)
             THEN mc_count3' = mc_count3 +1
             ELSE FALSE
 
 \*reset miscompare count when there is no miscompare with atleast one sensor
 
-reset_mc_count1 == IF (numActive=3 /\ (abs(signal1' - signal2') > MC_VAL_THRESHOLD \/ abs(signal1' - signal3') > MC_VAL_THRESHOLD))
+reset_mc_count1 == IF (numActive'=3 /\ (abs(signal1' - signal2') > MC_VAL_THRESHOLD \/ abs(signal1' - signal3') > MC_VAL_THRESHOLD))
                    THEN mc_count1' = 0
                    ELSE FALSE 
                    
-reset_mc_count2 == IF (numActive=3 /\ (abs(signal1' - signal2') > MC_VAL_THRESHOLD \/ abs(signal2' - signal3') > MC_VAL_THRESHOLD))
+reset_mc_count2 == IF (numActive'=3 /\ (abs(signal1' - signal2') > MC_VAL_THRESHOLD \/ abs(signal2' - signal3') > MC_VAL_THRESHOLD))
                    THEN mc_count2' = 0
                    ELSE FALSE
                    
-reset_mc_count3 == IF (numActive=3 /\ (abs(signal1' - signal3') > MC_VAL_THRESHOLD \/ abs(signal2' - signal3') > MC_VAL_THRESHOLD))
+reset_mc_count3 == IF (numActive'=3 /\ (abs(signal1' - signal3') > MC_VAL_THRESHOLD \/ abs(signal2' - signal3') > MC_VAL_THRESHOLD))
                    THEN mc_count3' = 0
                    ELSE FALSE
 
 \*reseting all miscompare count when one sensor become isolated
 
-reset_1 == IF (numActive=3 /\ (isolated1'=TRUE \/ isolated2'=TRUE \/ isolated3'=TRUE))
+reset_1 == IF (numActive=3 /\ numActive'=2)
              THEN (mc_count1'=0)
              ELSE FALSE
              
-reset_2 == IF (numActive=3 /\ (isolated1'=TRUE \/ isolated2'=TRUE \/ isolated3'=TRUE))
+reset_2 == IF (numActive=3 /\ numActive'=2)
              THEN (mc_count2'=0)
              ELSE FALSE
              
-reset_3 == IF (numActive=3 /\ (isolated1'=TRUE \/ isolated2'=TRUE \/ isolated3'=TRUE))
+reset_3 == IF (numActive=3 /\ numActive'=2)
              THEN (mc_count3'=0)
              ELSE FALSE
              
@@ -166,6 +155,16 @@ mc_count_handling == /\ (mc_incr1 \/ reset_mc_count1 \/ reset_1 \/ mc_next1 \/ m
                      /\ (mc_incr2 \/ reset_mc_count2 \/ reset_2 \/ mc_next2 \/ mc_reset2 \/ UNCHANGED mc_count2)
                      /\ (mc_incr3 \/ reset_mc_count3 \/ reset_3 \/ mc_next3 \/ mc_reset3 \/ UNCHANGED mc_count3)
 
+\*calculating numActive
+
+numActive_cal == CASE (isolated1'=TRUE /\ isolated2'=TRUE /\ isolated3'=TRUE) -> numActive'=0
+                 []   (isolated1'=FALSE /\ isolated2'=TRUE /\ isolated3'=TRUE) -> numActive'=1
+                 []   (isolated1'=TRUE /\ isolated2'=FALSE /\ isolated3'=TRUE) -> numActive'=1
+                 []   (isolated1'=TRUE /\ isolated2'=TRUE /\ isolated3'=FALSE) -> numActive'=1
+                 []   (isolated1'=TRUE /\ isolated2'=FALSE /\ isolated3'=FALSE) -> numActive'=2
+                 []   (isolated1'=FALSE /\ isolated2'=TRUE /\ isolated3'=FALSE) -> numActive'=2
+                 []   (isolated1'=FALSE /\ isolated2'=FALSE /\ isolated3'=TRUE) -> numActive'=2
+                 []OTHER -> numActive' =3
                  
 \*calculating outputValid
 
@@ -180,5 +179,5 @@ init == init1 /\ init_world /\ init_sensor1 /\ init_sensor2 /\ init_sensor3
 next == next_world /\ next_sensor1 /\ next_sensor2 /\ next_sensor3 /\ isolation_handling /\ hw_count_handling /\ mc_count_handling /\ numActive_cal /\ outputValid_cal 
 =============================================================================
 \* Modification History
-\* Last modified Thu Feb 23 21:28:36 IST 2023 by 112102006
+\* Last modified Thu Feb 23 21:02:43 IST 2023 by 112102006
 \* Created Thu Feb 02 20:09:21 IST 2023 by 112102006

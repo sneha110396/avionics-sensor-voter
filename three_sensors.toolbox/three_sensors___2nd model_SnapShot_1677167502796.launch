@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.lamport.tla.toolbox.tool.tlc.modelCheck">
-    <stringAttribute key="configurationName" value="1st model"/>
+    <stringAttribute key="configurationName" value="2nd model_SnapShot_1677167502796"/>
     <intAttribute key="distributedFPSetCount" value="0"/>
     <stringAttribute key="distributedNetworkInterface" value="10.64.1.178"/>
     <intAttribute key="distributedNodesCount" value="1"/>
     <stringAttribute key="distributedTLC" value="off"/>
-    <intAttribute key="fpIndex" value="40"/>
+    <intAttribute key="fpIndex" value="95"/>
     <intAttribute key="maxHeapSize" value="25"/>
     <stringAttribute key="modelBehaviorInit" value="init"/>
     <stringAttribute key="modelBehaviorNext" value="next"/>
@@ -22,7 +22,7 @@
         <listEntry value="MAX_VAL;;6;0;0"/>
         <listEntry value="HW_PERSISTENCE;;4;0;0"/>
         <listEntry value="MIN_VAL;;-6;0;0"/>
-        <listEntry value="MC_VAL_THRESHOLD;;2;0;0"/>
+        <listEntry value="MC_VAL_THRESHOLD;;4;0;0"/>
     </listAttribute>
     <intAttribute key="modelVersion" value="20191005"/>
     <intAttribute key="numberOfWorkers" value="2"/>

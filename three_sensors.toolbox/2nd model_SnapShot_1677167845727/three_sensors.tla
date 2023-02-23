@@ -60,29 +60,29 @@ numActive_cal == \/ (isolated1'=TRUE /\ isolated2'=TRUE /\ isolated3'=TRUE /\ nu
 
 hw_count_incr1 == IF (hw_valid1' = FALSE \/ hw_count1 < HW_PERSISTENCE)
                   THEN hw_count1' = hw_count1+1
-                  ELSE FALSE
+                  ELSE TRUE
             
 hw_count_incr2 == IF (hw_valid2' = FALSE \/ hw_count2 < HW_PERSISTENCE)
                   THEN hw_count2' = hw_count2+1
-                  ELSE FALSE
+                  ELSE TRUE
             
 hw_count_incr3 == IF (hw_valid3' = FALSE \/ hw_count3 < HW_PERSISTENCE)
                   THEN hw_count3' = hw_count3+1
-                  ELSE FALSE
+                  ELSE TRUE
 
 \*Reset hardware count
 
 reset_hw_count1 == IF hw_valid1'=TRUE
                    THEN hw_count1' = 0
-                   ELSE FALSE
+                   ELSE TRUE
                    
 reset_hw_count2 == IF hw_valid2'=TRUE
                    THEN hw_count2' = 0
-                   ELSE FALSE
+                   ELSE TRUE
 
 reset_hw_count3 == IF hw_valid3'=TRUE
                    THEN hw_count3' = 0
-                   ELSE FALSE
+                   ELSE TRUE
 
 \*handling hardware count
 
@@ -180,5 +180,5 @@ init == init1 /\ init_world /\ init_sensor1 /\ init_sensor2 /\ init_sensor3
 next == next_world /\ next_sensor1 /\ next_sensor2 /\ next_sensor3 /\ isolation_handling /\ hw_count_handling /\ mc_count_handling /\ numActive_cal /\ outputValid_cal 
 =============================================================================
 \* Modification History
-\* Last modified Thu Feb 23 21:28:36 IST 2023 by 112102006
+\* Last modified Thu Feb 23 21:27:13 IST 2023 by 112102006
 \* Created Thu Feb 02 20:09:21 IST 2023 by 112102006

@@ -1,12 +1,11 @@
 MODULE realWorld                     -- Generating real world signal values
 
+DEFINE
+	MAX_VAL:= 10;
+	MIN_VAL:= -10;
+
 VAR
 	out : MIN_VAL..MAX_VAL;
-DEFINE
-	MAX_VAL:= 6;
-	MIN_VAL:= -6;
-
-
 
 MODULE sensor(world)
 
@@ -36,7 +35,7 @@ ASSIGN
 			next(fault)=0 & (abs(next(world.out) + next(noise)) <=world.MAX_VAL) : next(world.out) + next(noise);
 			next(fault)=0 & ((next(world.out) + next(noise)) > world.MAX_VAL) : world.MAX_VAL;
 			next(fault)=0 & ((next(world.out) + next(noise)) < world.MIN_VAL) : world.MIN_VAL;
-			TRUE : -6..6;
+			TRUE : (world.MIN_VAL)..(world.MAX_VAL);
 			esac;
 
 
@@ -170,23 +169,24 @@ DEFINE
 			numActive=0 : FALSE;
 			esac;
 	
-	FLAG := 
+	FLAG1 := (!isolated1 -> hw_count1 < HW_PERSISTENCE) & (!isolated2 -> hw_count2 < HW_PERSISTENCE) & (!isolated2 -> hw_count3 < HW_PERSISTENCE);
+	no_hardware_fault := (!isolated1 -> sensor1.hw_valid=TRUE) & (!isolated2 -> sensor2.hw_valid=TRUE) & (!isolated3 -> sensor3.hw_valid=TRUE);
 
 
 --Invariants	
 
-INVAR !((!isolated1 & sensor1.fault!=0) & (!isolated2 & sensor2.fault!=0)) 
-INVAR !((!isolated1 & sensor1.fault!=0) & (!isolated3 & sensor3.fault!=0))
-INVAR !((!isolated2 & sensor2.fault!=0) & (!isolated3 & sensor3.fault!=0))
+INVAR !((isolated1=FALSE & sensor1.fault!=0) & (isolated2=FALSE & sensor2.fault!=0)) 
+INVAR !((isolated1=FALSE & sensor1.fault!=0) & (isolated3=FALSE & sensor3.fault!=0))
+INVAR !((isolated2=FALSE & sensor2.fault!=0) & (isolated3=FALSE & sensor3.fault!=0))
 
 
 --properties to check
 
---CTLSPEC AG(numActive=2-> (AG(numActive!=3)))
---CTLSPEC AG(numActive=1-> (AG(numActive!=2)))
---CTLSPEC AG(numActive=0-> (!EF(numActive=1))) 
---CTLSPEC AG(numActive=3 -> EF(numActive=2))
---CTLSPEC AG(numActive=2 -> EF(numActive=1))
---CTLSPEC AG(numActive=1-> EF(numActive=0))
---CTLSPEC AG((outputSignal= rWorld.out) -> AF(A[(outputSignal = rWorld.out) U ((outputSignal= rWorld.out) & outputValid)] | (outputSignal = rWorld.out)))
-CTLSPEC AG((numActive=2 & outputValid) -> EF(numActive=2 & !outputValid))
+CTLSPEC AG(numActive=2-> (AG(numActive!=3)))
+CTLSPEC AG(numActive=1-> (AG(numActive!=2)))
+CTLSPEC AG(numActive=0-> (!EF(numActive=1))) 
+CTLSPEC AG(numActive=3 -> EF(numActive=2))
+CTLSPEC AG(numActive=2 -> EF(numActive=1))
+CTLSPEC AG(numActive=1-> EF(numActive=0))
+CTLSPEC AG((outputSignal= rWorld.out) -> AF(A[(outputSignal = rWorld.out) U ((outputSignal= rWorld.out) & outputValid)] | (outputSignal = rWorld.out)))
+CTLSPEC AG((numActive=2 & outputValid & no_hardware_fault) -> EF(numActive=2 & !outputValid))

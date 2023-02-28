@@ -67,75 +67,75 @@ VAR
 ASSIGN 
 	init(isolated1) := FALSE;
 	next(isolated1) := case
-				(next(hw_count1)=HW_PERSISTENCE) | (numActive=3 & next(mc_count1)=MC_PERSISTENCE) : TRUE;
+				(hw_count1=HW_PERSISTENCE) | (numActive=3 & mc_count1=MC_PERSISTENCE) : TRUE;
 				isolated1 : TRUE;
 				TRUE : FALSE;
 				esac;
 	init(isolated2) := FALSE;
 	next(isolated2) := case
-				(next(hw_count2)=HW_PERSISTENCE) | (numActive=3 & next(mc_count2)=MC_PERSISTENCE) : TRUE;
+				(hw_count2=HW_PERSISTENCE) | (numActive=3 & mc_count2=MC_PERSISTENCE) : TRUE;
 				isolated2 : TRUE;
 				TRUE : FALSE;
 				esac;
 	init(isolated3) := FALSE;
 	next(isolated3) := case
-				(next(hw_count3)=HW_PERSISTENCE) | (numActive=3 & next(mc_count3)=MC_PERSISTENCE) : TRUE;
+				(hw_count3=HW_PERSISTENCE) | (numActive=3 & mc_count3=MC_PERSISTENCE) : TRUE;
 				isolated3 : TRUE;
 				TRUE : FALSE;
 				esac;
 	init(hw_count1) := 0;
 	next(hw_count1) := case
-				(sensor1.hw_valid = FALSE) & (hw_count1<HW_PERSISTENCE) : hw_count1+1;
-				sensor1.hw_valid = TRUE : 0;
+				(next(sensor1.hw_valid) = FALSE) & (hw_count1<HW_PERSISTENCE) : hw_count1+1;
+				next(sensor1.hw_valid) = TRUE : 0;
 				hw_count1=HW_PERSISTENCE : HW_PERSISTENCE;
 				TRUE : hw_count1;
 				esac;
 	init(hw_count2) := 0;
 	next(hw_count2) := case
-				(sensor2.hw_valid = FALSE) & (hw_count2<HW_PERSISTENCE) : hw_count2+1;
-				sensor2.hw_valid = TRUE : 0;
+				(next(sensor2.hw_valid) = FALSE) & (hw_count2<HW_PERSISTENCE) : hw_count2+1;
+				next(sensor2.hw_valid) = TRUE : 0;
 				hw_count2=HW_PERSISTENCE : HW_PERSISTENCE;
 				TRUE : hw_count2;
 				esac;
 	init(hw_count3) := 0;
 	next(hw_count3) := case
-				(sensor3.hw_valid = FALSE) & (hw_count3<HW_PERSISTENCE) : hw_count3+1;
-				sensor3.hw_valid = TRUE : 0;
+				(next(sensor3.hw_valid) = FALSE) & (hw_count3<HW_PERSISTENCE) : hw_count3+1;
+				next(sensor3.hw_valid) = TRUE : 0;
 				hw_count3=HW_PERSISTENCE : HW_PERSISTENCE;
 				TRUE : hw_count3;
 				esac;
 	init(mc_count1) := 0;
 	next(mc_count1) := case
-				(numActive=3) & miscompare1 & (mc_count1<MC_PERSISTENCE) : mc_count1 +1;
-				(numActive=3) & !miscompare1 & (mc_count1<MC_PERSISTENCE): 0;
+				(next(numActive)=3) & next(miscompare1)=TRUE & (mc_count1<MC_PERSISTENCE) : mc_count1 +1;
+				(next(numActive)=3) & next(miscompare1)=FALSE & (mc_count1<MC_PERSISTENCE): 0;
 				mc_count1=MC_PERSISTENCE : MC_PERSISTENCE;
 				TRUE : mc_count1;
 				esac;
 	init(mc_count2) := 0;
 	next(mc_count2) := case
-				(numActive=3) & miscompare2 & (mc_count2<MC_PERSISTENCE) : mc_count2 +1;
-				(numActive=3) & !miscompare2 & (mc_count2<MC_PERSISTENCE): 0;
+				(next(numActive)=3) & next(miscompare2)=TRUE & (mc_count2<MC_PERSISTENCE) : mc_count2 +1;
+				(next(numActive)=3) & next(miscompare2)=FALSE & (mc_count2<MC_PERSISTENCE): 0;
 				mc_count2=MC_PERSISTENCE : MC_PERSISTENCE;
 				TRUE : mc_count2;
 				esac;
 	init(mc_count3) := 0;
 	next(mc_count3) := case
-				numActive=3 & miscompare3 & (mc_count3<MC_PERSISTENCE) : mc_count3 +1;
-				numActive=3 & !miscompare3 & (mc_count3<MC_PERSISTENCE) : 0;
+				next(numActive)=3 & next(miscompare3)=TRUE & (mc_count3<MC_PERSISTENCE) : mc_count3 +1;
+				next(numActive)=3 & next(miscompare3)=FALSE & (mc_count3<MC_PERSISTENCE) : 0;
 				mc_count3=MC_PERSISTENCE : MC_PERSISTENCE;
 				TRUE : mc_count3;
 				esac;
 	init(mc_next) := 0;
 	next(mc_next) := case
-				numActive=2 & isolated3 & (diff_12 > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
-				numActive=2 & isolated3 & (diff_12 <= MC_val_threshold) : 0;
-				numActive=2 & isolated3 & (diff_12 > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
-				numActive=2 & isolated2 & (diff_13 > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
-				numActive=2 & isolated2 & (diff_13 <= MC_val_threshold) : 0;
-				numActive=2 & isolated2 & (diff_13 > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
-				numActive=2 & isolated1 & (diff_23 > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
-				numActive=2 & isolated1 & (diff_23 <= MC_val_threshold) : 0;
-				numActive=2 & isolated1 & (diff_23 > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
+				next(numActive)=2 & next(isolated3)=TRUE & (next(diff_12) > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
+				next(numActive)=2 & next(isolated3)=TRUE & (next(diff_12) <= MC_val_threshold) : 0;
+				next(numActive)=2 & next(isolated3)=TRUE & (next(diff_12) > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
+				next(numActive)=2 & next(isolated2)=TRUE & (next(diff_13) > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
+				next(numActive)=2 & next(isolated2)=TRUE & (next(diff_13) <= MC_val_threshold) : 0;
+				next(numActive)=2 & next(isolated2)=TRUE & (next(diff_13) > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
+				next(numActive)=2 & next(isolated1)=TRUE & (next(diff_23) > MC_val_threshold) & (mc_next < MC_PERSISTENCE): mc_next+1;
+				next(numActive)=2 & next(isolated1)=TRUE & (next(diff_23) <= MC_val_threshold) : 0;
+				next(numActive)=2 & next(isolated1)=TRUE & (next(diff_23) > MC_val_threshold) & mc_next = MC_PERSISTENCE : MC_PERSISTENCE;
 				TRUE : mc_next;
 				esac;
 							
@@ -169,16 +169,16 @@ DEFINE
 			numActive=1 : TRUE;
 			numActive=0 : FALSE;
 			esac;
+	
+	FLAG := 
 
 
 --Invariants	
 
-INVAR !(sensor1.fault!=0 & sensor2.fault!=0) 
-INVAR !(sensor1.fault!=0 & sensor3.fault!=0)
-INVAR !(sensor2.fault!=0 & sensor3.fault!=0)
-INVAR !(sensor1.hw_valid=FALSE & sensor2.hw_valid=FALSE)
-INVAR !(sensor2.hw_valid=FALSE & sensor3.hw_valid=FALSE)
-INVAR !(sensor3.hw_valid=FALSE & sensor1.hw_valid=FALSE)
+INVAR !((!isolated1 & sensor1.fault!=0) & (!isolated2 & sensor2.fault!=0)) 
+INVAR !((!isolated1 & sensor1.fault!=0) & (!isolated3 & sensor3.fault!=0))
+INVAR !((!isolated2 & sensor2.fault!=0) & (!isolated3 & sensor3.fault!=0))
+
 
 --properties to check
 

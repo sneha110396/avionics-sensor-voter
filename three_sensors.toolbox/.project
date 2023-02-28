@@ -23,7 +23,7 @@
 		<link>
 			<name>sensor1.tla</name>
 			<type>1</type>
-			<location>/home/112102006/Desktop/avionics-sensor-voter/sensor1.tla</location>
+			<locationURI>PARENT-1-PROJECT_LOC/sensor1.tla</locationURI>
 		</link>
 		<link>
 			<name>sensor2.tla</name>
@@ -34,11 +34,6 @@
 			<name>sensor3.tla</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/sensor3.tla</locationURI>
-		</link>
-		<link>
-			<name>sensors.tla</name>
-			<type>1</type>
-			<location>/home/112102006/Desktop/avionics-sensor-voter/sensors.tla</location>
 		</link>
 		<link>
 			<name>three_sensors.tla</name>

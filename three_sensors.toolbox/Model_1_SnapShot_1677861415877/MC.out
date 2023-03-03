@@ -1,0 +1,387 @@
+@!@!@STARTMSG 2262:0 @!@!@
+TLC2 Version 2.16 of 31 December 2020 (rev: cdddf55)
+@!@!@ENDMSG 2262 @!@!@
+@!@!@STARTMSG 2187:0 @!@!@
+Running breadth-first search Model-Checking with fp 93 and seed -6030067418119169352 with 2 workers on 4 cores with 569MB heap and 1277MB offheap memory [pid: 31117] (Linux 4.15.0-204-generic amd64, AdoptOpenJDK 14.0.1 x86_64, OffHeapDiskFPSet, DiskStateQueue).
+@!@!@ENDMSG 2187 @!@!@
+@!@!@STARTMSG 2220:0 @!@!@
+Starting SANY...
+@!@!@ENDMSG 2220 @!@!@
+Parsing file /home/112102006/Desktop/avionics-sensor-voter/three_sensors.toolbox/Model_1/MC.tla
+Parsing file /home/112102006/Desktop/avionics-sensor-voter/three_sensors.toolbox/Model_1/three_sensors.tla
+Parsing file /opt/toolbox/plugins/org.lamport.tlatools_1.0.0.202012311918/tla2sany/StandardModules/TLC.tla
+Parsing file /opt/toolbox/plugins/org.lamport.tlatools_1.0.0.202012311918/tla2sany/StandardModules/Integers.tla
+Parsing file /opt/toolbox/plugins/org.lamport.tlatools_1.0.0.202012311918/tla2sany/StandardModules/Naturals.tla
+Parsing file /opt/toolbox/plugins/org.lamport.tlatools_1.0.0.202012311918/tla2sany/StandardModules/Sequences.tla
+Parsing file /opt/toolbox/plugins/org.lamport.tlatools_1.0.0.202012311918/tla2sany/StandardModules/FiniteSets.tla
+Semantic processing of module Naturals
+Semantic processing of module Integers
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module TLC
+Semantic processing of module three_sensors
+Semantic processing of module MC
+@!@!@STARTMSG 2219:0 @!@!@
+SANY finished.
+@!@!@ENDMSG 2219 @!@!@
+@!@!@STARTMSG 2185:0 @!@!@
+Starting... (2023-03-03 22:06:53)
+@!@!@ENDMSG 2185 @!@!@
+@!@!@STARTMSG 2189:0 @!@!@
+Computing initial states...
+@!@!@ENDMSG 2189 @!@!@
+@!@!@STARTMSG 2190:0 @!@!@
+Finished computing initial states: 1 distinct state generated at 2023-03-03 22:06:54.
+@!@!@ENDMSG 2190 @!@!@
+@!@!@STARTMSG 1000:1 @!@!@
+TLC threw an unexpected exception.
+This was probably caused by an error in the spec or model.
+See the User Output or TLC Console for clues to what happened.
+The exception was a java.lang.RuntimeException
+: Attempted to select nonexistent field "ha_valid" from the record
+[signal |-> 0, hw_valid |-> TRUE]
+line 94, col 23 to line 94, col 38 of module three_sensors
+@!@!@ENDMSG 1000 @!@!@
+@!@!@STARTMSG 2121:1 @!@!@
+The behavior up to this point is:
+@!@!@ENDMSG 2121 @!@!@
+@!@!@STARTMSG 2217:4 @!@!@
+1: <Initial predicate>
+/\ outputValid = TRUE
+/\ hw_count1 = 0
+/\ hw_count2 = 0
+/\ hw_count3 = 0
+/\ numActive = 3
+/\ isolated1 = FALSE
+/\ isolated2 = FALSE
+/\ isolated3 = FALSE
+/\ mc_count1 = 0
+/\ mc_count2 = 0
+/\ mc_count3 = 0
+
+@!@!@ENDMSG 2217 @!@!@
+@!@!@STARTMSG 2103:1 @!@!@
+The error occurred when TLC was evaluating the nested
+expressions at the following positions:
+0. Line 209, column 9 to line 209, column 104 in three_sensors
+1. Line 209, column 9 to line 209, column 85 in three_sensors
+2. Line 209, column 9 to line 209, column 68 in three_sensors
+3. Line 209, column 9 to line 209, column 47 in three_sensors
+4. Line 209, column 9 to line 209, column 26 in three_sensors
+5. Line 75, column 23 to line 75, column 129 in three_sensors
+6. Line 75, column 23 to line 75, column 92 in three_sensors
+7. Line 75, column 24 to line 75, column 54 in three_sensors
+8. Line 75, column 24 to line 75, column 31 in three_sensors
+9. Line 49, column 13 to line 49, column 38 in three_sensors
+10. Line 49, column 28 to line 49, column 38 in three_sensors
+11. Line 45, column 16 to line 47, column 25 in three_sensors
+12. Line 46, column 21 to line 46, column 35 in three_sensors
+13. Line 75, column 61 to line 75, column 91 in three_sensors
+14. Line 75, column 61 to line 75, column 68 in three_sensors
+15. Line 61, column 13 to line 61, column 38 in three_sensors
+16. Line 61, column 28 to line 61, column 38 in three_sensors
+17. Line 57, column 16 to line 59, column 25 in three_sensors
+18. Line 58, column 21 to line 58, column 35 in three_sensors
+19. Line 75, column 98 to line 75, column 128 in three_sensors
+20. Line 75, column 98 to line 75, column 105 in three_sensors
+21. Line 73, column 13 to line 73, column 38 in three_sensors
+22. Line 73, column 28 to line 73, column 38 in three_sensors
+23. Line 69, column 16 to line 71, column 25 in three_sensors
+24. Line 70, column 21 to line 70, column 35 in three_sensors
+25. Line 209, column 31 to line 209, column 47 in three_sensors
+26. Line 118, column 22 to line 120, column 82 in three_sensors
+27. Line 118, column 26 to line 118, column 81 in three_sensors
+28. Line 118, column 26 to line 118, column 58 in three_sensors
+29. Line 118, column 26 to line 118, column 39 in three_sensors
+30. Line 90, column 19 to line 92, column 28 in three_sensors
+31. Line 91, column 24 to line 91, column 47 in three_sensors
+32. Line 119, column 26 to line 119, column 81 in three_sensors
+33. Line 119, column 26 to line 119, column 58 in three_sensors
+34. Line 119, column 26 to line 119, column 39 in three_sensors
+35. Line 94, column 19 to line 96, column 28 in three_sensors
+36. Line 94, column 23 to line 94, column 77 in three_sensors
+37. Line 94, column 23 to line 94, column 47 in three_sensors
+38. Line 94, column 23 to line 94, column 39 in three_sensors
+39. Line 94, column 23 to line 94, column 38 in three_sensors
+
+
+@!@!@ENDMSG 2103 @!@!@
+@!@!@STARTMSG 2201:0 @!@!@
+The coverage statistics at 2023-03-03 22:06:54
+@!@!@ENDMSG 2201 @!@!@
+@!@!@STARTMSG 2773:0 @!@!@
+<init line 207, col 1 to line 207, col 4 of module three_sensors>: 1:1
+@!@!@ENDMSG 2773 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 207, col 9 to line 207, col 208 of module three_sensors: 1
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2772:0 @!@!@
+<next line 209, col 1 to line 209, col 4 of module three_sensors>: 0:0
+@!@!@ENDMSG 2772 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 41, col 19 to line 41, col 42 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 42, col 21 to line 42, col 35 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 45, col 20 to line 45, col 58 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 46, col 21 to line 46, col 35 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  |line 46, col 32 to line 46, col 35 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 75, col 36 to line 75, col 54 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 53, col 19 to line 53, col 42 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 54, col 21 to line 54, col 35 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 57, col 20 to line 57, col 58 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 58, col 21 to line 58, col 35 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  |line 58, col 32 to line 58, col 35 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 75, col 73 to line 75, col 91 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 65, col 19 to line 65, col 42 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 66, col 21 to line 66, col 35 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 69, col 20 to line 69, col 58 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 70, col 21 to line 70, col 35 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  |line 70, col 32 to line 70, col 35 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 75, col 110 to line 75, col 128 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 90, col 23 to line 90, col 77 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 91, col 24 to line 91, col 47 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  |line 91, col 37 to line 91, col 47 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 105, col 25 to line 105, col 38 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 118, col 63 to line 118, col 81 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 94, col 23 to line 94, col 77 of module three_sensors: 2
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 95, col 24 to line 95, col 47 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 109, col 25 to line 109, col 38 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 119, col 63 to line 119, col 81 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 99, col 24 to line 99, col 47 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 113, col 25 to line 113, col 38 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 120, col 63 to line 120, col 81 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 125, col 18 to line 125, col 42 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 139, col 25 to line 139, col 38 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 153, col 20 to line 153, col 31 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 167, col 18 to line 167, col 41 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 181, col 18 to line 181, col 31 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 194, col 93 to line 194, col 111 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 129, col 18 to line 129, col 42 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 143, col 25 to line 143, col 38 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 157, col 20 to line 157, col 31 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 171, col 18 to line 171, col 41 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 185, col 18 to line 185, col 31 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 195, col 93 to line 195, col 111 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 133, col 18 to line 133, col 42 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 147, col 25 to line 147, col 38 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 161, col 20 to line 161, col 31 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 175, col 18 to line 175, col 41 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 189, col 18 to line 189, col 31 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 196, col 93 to line 196, col 111 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 79, col 22 to line 79, col 36 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 79, col 41 to line 79, col 55 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 79, col 60 to line 79, col 74 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 79, col 79 to line 79, col 90 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 80, col 22 to line 80, col 37 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 80, col 42 to line 80, col 56 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 80, col 61 to line 80, col 75 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 80, col 80 to line 80, col 91 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 81, col 22 to line 81, col 36 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 81, col 41 to line 81, col 56 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 81, col 61 to line 81, col 75 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 81, col 80 to line 81, col 91 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 82, col 22 to line 82, col 36 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 82, col 41 to line 82, col 55 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 82, col 60 to line 82, col 75 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 82, col 80 to line 82, col 91 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 83, col 22 to line 83, col 36 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 83, col 41 to line 83, col 56 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 83, col 61 to line 83, col 76 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 83, col 81 to line 83, col 92 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 84, col 22 to line 84, col 37 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 84, col 42 to line 84, col 56 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 84, col 61 to line 84, col 76 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 84, col 81 to line 84, col 92 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 85, col 22 to line 85, col 37 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 85, col 42 to line 85, col 57 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 85, col 62 to line 85, col 76 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 85, col 81 to line 85, col 92 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 86, col 22 to line 86, col 37 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 86, col 42 to line 86, col 57 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 86, col 62 to line 86, col 77 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 86, col 82 to line 86, col 93 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 201, col 41 to line 201, col 57 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 202, col 140 to line 202, col 156 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 203, col 141 to line 203, col 158 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 204, col 41 to line 204, col 57 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2221:0 @!@!@
+  line 205, col 41 to line 205, col 58 of module three_sensors: 0
+@!@!@ENDMSG 2221 @!@!@
+@!@!@STARTMSG 2202:0 @!@!@
+End of statistics.
+@!@!@ENDMSG 2202 @!@!@
+@!@!@STARTMSG 2200:0 @!@!@
+Progress(1) at 2023-03-03 22:06:54: 1 states generated (36 s/min), 1 distinct states found (36 ds/min), 0 states left on queue.
+@!@!@ENDMSG 2200 @!@!@
+@!@!@STARTMSG 2199:0 @!@!@
+1 states generated, 1 distinct states found, 0 states left on queue.
+@!@!@ENDMSG 2199 @!@!@
+@!@!@STARTMSG 2186:0 @!@!@
+Finished in 1656ms at (2023-03-03 22:06:54)
+@!@!@ENDMSG 2186 @!@!@

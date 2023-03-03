@@ -16,26 +16,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>realWorld.tla</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/realWorld.tla</locationURI>
-		</link>
-		<link>
-			<name>sensor1.tla</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/sensor1.tla</locationURI>
-		</link>
-		<link>
-			<name>sensor2.tla</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/sensor2.tla</locationURI>
-		</link>
-		<link>
-			<name>sensor3.tla</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/sensor3.tla</locationURI>
-		</link>
-		<link>
 			<name>three_sensors.tla</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/three_sensors.tla</locationURI>

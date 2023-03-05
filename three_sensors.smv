@@ -60,7 +60,7 @@ VAR
 	isolated1 : boolean;                           --TRUE if sensor 1 is isolated
 	isolated2 : boolean;                           --TRUE if sensor 2 is isolated
 	isolated3 : boolean;                           --TRUE if sendor 3 is isolated
-	outputValid : boolean;
+	landmark : {"reset", "thres_hit"};
 	
 
 ASSIGN 
@@ -110,8 +110,8 @@ ASSIGN
 				(numActive=3) & (mc_count1=MC_PERSISTENCE) : 0;
 
 				next(numActive)=2 & next(isolated1)=TRUE & (next(diff_23) > MC_val_threshold) & (mc_count1 < MC_PERSISTENCE): mc_count1+1;
-				next(numActive)=2 & next(isolated1)=TRUE & outputValid & (next(diff_23) <= MC_val_threshold) : 0;
-				next(numActive)=2 & next(isolated1)=TRUE & !outputValid & (next(diff_23) <= MC_val_threshold) & (mc_count1 >0) : mc_count1 - 1;
+				next(numActive)=2 & next(isolated1)=TRUE & next(landmark)= "reset" & (next(diff_23) <= MC_val_threshold) : 0;
+				next(numActive)=2 & next(isolated1)=TRUE & next(landmark)= "thres_hit" & (next(diff_23) <= MC_val_threshold) & (mc_count1 >0) : mc_count1 - 1;
 				TRUE : mc_count1;
 				esac;
 	init(mc_count2) := 0;
@@ -121,8 +121,8 @@ ASSIGN
 				(numActive=3) & (mc_count2=MC_PERSISTENCE) : 0;
 
 				next(numActive)=2 & next(isolated2)=TRUE & (next(diff_13) > MC_val_threshold) & (mc_count2 < MC_PERSISTENCE): mc_count2+1;
-				next(numActive)=2 & next(isolated2)=TRUE & outputValid & (next(diff_13) <= MC_val_threshold) : 0;
-				next(numActive)=2 & next(isolated2)=TRUE & !outputValid & (next(diff_13) <= MC_val_threshold) & (mc_count2 >0) : mc_count2 - 1;
+				next(numActive)=2 & next(isolated2)=TRUE & next(landmark)="reset" & (next(diff_13) <= MC_val_threshold) : 0;
+				next(numActive)=2 & next(isolated2)=TRUE & next(landmark)="thres_hit" & (next(diff_13) <= MC_val_threshold) & (mc_count2 >0) : mc_count2 - 1;
 				TRUE : mc_count2;
 				esac;
 	init(mc_count3) := 0;
@@ -132,29 +132,21 @@ ASSIGN
 				(numActive=3) & (mc_count3=MC_PERSISTENCE) : 0;
 
 				next(numActive)=2 & next(isolated3)=TRUE & (next(diff_12) > MC_val_threshold) & (mc_count3 < MC_PERSISTENCE): mc_count3+1;
-				next(numActive)=2 & next(isolated3)=TRUE & outputValid & (next(diff_12) <= MC_val_threshold) : 0;
-				next(numActive)=2 & next(isolated3)=TRUE & !outputValid & (next(diff_12) <= MC_val_threshold) & (mc_count3 >0) : mc_count3 - 1;
+				next(numActive)=2 & next(isolated3)=TRUE & next(landmark)="reset" & (next(diff_12) <= MC_val_threshold) : 0;
+				next(numActive)=2 & next(isolated3)=TRUE & next(landmark)="thres_hit" & (next(diff_12) <= MC_val_threshold) & (mc_count3 >0) : mc_count3 - 1;
 				TRUE : mc_count3;
 				esac;
 
-
-	init(outputValid) := TRUE;
-	next(outputValid) := case
-				next(numActive)=3 : TRUE;
-
-				next(numActive)=2 & next(isolated1)=TRUE & next(mc_count1)=MC_PERSISTENCE : FALSE;
-				next(numActive)=2 & next(isolated1)=TRUE & next(mc_count1) = 0 : TRUE;
-
-				next(numActive)=2 & next(isolated2)=TRUE & next(mc_count2)=MC_PERSISTENCE : FALSE;
-				next(numActive)=2 & next(isolated2)=TRUE & next(mc_count2) = 0 : TRUE;
-
-				next(numActive)=2 & next(isolated3)=TRUE & next(mc_count3)=MC_PERSISTENCE : FALSE;
-				next(numActive)=2 & next(isolated3)=TRUE & next(mc_count3) = 0 : TRUE;
-
-				next(numActive)=1 : TRUE;
-				next(numActive)=0 : FALSE;
-				TRUE : outputValid;
-				esac;
+	init(landmark):= "reset";
+	next(landmark):= case
+						numActive=2 & isolated1 & mc_count1=MC_PERSISTENCE : "thres_hit";
+						numActive=2 & isolated2 & mc_count2=MC_PERSISTENCE : "thres_hit";
+						numActive=2 & isolated3 & mc_count3=MC_PERSISTENCE : "thres_hit";
+						numActive=2 & isolated1 & mc_count1=0 : "reset";
+						numActive=2 & isolated2 & mc_count2=0 : "reset";
+						numActive=2 & isolated3 & mc_count3=0 : "reset";
+						TRUE: landmark;
+						esac;
 				
 							
 DEFINE
@@ -180,8 +172,30 @@ DEFINE
 			numActive=1 & isolated3 & isolated1 : sensor2.signal;
 			numActive=0 : -100;
 			esac;
+
+	outputValid := case 
+						numActive=3 : TRUE;
+
+						numActive=2 & isolated1 & mc_count1=MC_PERSISTENCE : FALSE;
+						numActive=2 & isolated1 & mc_count1=0 : TRUE;
+						numActive=2 & isolated1 & mc_count1 < MC_PERSISTENCE & mc_count1 > 0 & landmark="thres_hit": FALSE;
+						numActive=2 & isolated1 & mc_count1 < MC_PERSISTENCE & mc_count1 > 0 & landmark="reset": TRUE;
+				
+						numActive=2 & isolated2 & mc_count2=MC_PERSISTENCE : FALSE;
+						numActive=2 & isolated2 & mc_count2=0 : TRUE;
+						numActive=2 & isolated2 & mc_count2 < MC_PERSISTENCE & mc_count2 > 0 & landmark="thres_hit": FALSE;
+						numActive=2 & isolated2 & mc_count2 < MC_PERSISTENCE & mc_count2 > 0 & landmark="reset": TRUE;
+						
+						numActive=2 & isolated3 & mc_count3=MC_PERSISTENCE : FALSE;
+						numActive=2 & isolated3 & mc_count3=0 : TRUE;
+						numActive=2 & isolated3 & mc_count3 < MC_PERSISTENCE & mc_count3 > 0 & landmark="thres_hit": FALSE;
+						numActive=2 & isolated3 & mc_count3 < MC_PERSISTENCE & mc_count3 > 0 & landmark="reset": TRUE;
+						
+						numActive=1 : TRUE;
+						numActive=0 : FALSE;
+						esac;
 	
-	FLAG1 := (!isolated1 -> hw_count1 < HW_PERSISTENCE) & (!isolated2 -> hw_count2 < HW_PERSISTENCE) & (!isolated3 -> hw_count3 < HW_PERSISTENCE);
+	isolt_or_count_lt_persist := (!isolated1 -> hw_count1 < HW_PERSISTENCE) & (!isolated2 -> hw_count2 < HW_PERSISTENCE) & (!isolated3 -> hw_count3 < HW_PERSISTENCE);
 	no_hardware_fault := (!isolated1 -> sensor1.hw_valid=TRUE) & (!isolated2 -> sensor2.hw_valid=TRUE) & (!isolated3 -> sensor3.hw_valid=TRUE);
 
 

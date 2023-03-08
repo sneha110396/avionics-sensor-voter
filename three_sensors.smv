@@ -1,31 +1,52 @@
-MODULE realWorld                     -- Generating real world signal values
+-- Module realWorld will generate signal values between a given range
+
+MODULE realWorld                    
 
 DEFINE
-	MAX_VAL:= 10;
-	MIN_VAL:= -10;
+	MAX_VAL:= 10;		  -- maximum value of the signal
+	MIN_VAL:= -10;		  -- minimum value of the signal
 
 VAR
-	out : MIN_VAL..MAX_VAL;
+	out : MIN_VAL..MAX_VAL;   -- variable to generate random signal values between MIN_VAL and MAX_VAL
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Module sensor will create sensors which will measure the signal values created by realWorld Module
+-- It takes the realWorld module as input
+-- Each sensor will have a noise. Each sensor can have three types of "fault"
+-- Each sensor will output a signal value and a hardware flag
+-- hardware flag of each sensor indicates if there is a hardware fault in the sensor or not
 
 MODULE sensor(world)
 
 VAR
 	hw_valid: boolean;         -- TRUE means hardware flag is indicating valid, FALSE otherwise
+	
 	fault: 0..2;               -- 0 means no fault
 	                           -- 1 means signal is an arbitrary value
 				   -- 2 means hw_valid may not be correct
-	noise: -1..1;
+				   
+	noise: -1..1;              -- noise can be between -1 to 1
+	
 	signal: (world.MIN_VAL) .. (world.MAX_VAL); 
 	
 	
 
 ASSIGN
-	init(fault) := 0;
-	init(hw_valid) := TRUE;
-	next(hw_valid) := case
-				fault=0 : TRUE;
+	init(fault) := 0;                                     -- intially fault is 0
+							      -- each step it will take arbitrary value between 0 to 2
+							      
+	init(hw_valid) := TRUE;                               -- hw_valid is TRUE initially
+	next(hw_valid) := case				      -- In each step, if fault is 0, hw_valid will be true
+				fault=0 : TRUE;		      -- Otherwise it will take arbitrary boolean value
 				TRUE : {TRUE , FALSE};
 				esac;
+				
+	-- If fault is 0, signal value will be realWorld value + noise
+	-- If the signal value exceeds the MAX_VAL, we will set the signal value as MAX_VAL
+	-- If signal value becomes less than MIN_VAL, we will set the signal value as MIN_VAL
+	-- If fault is not 0, signal can take any arbitrary value between MAX_VAL and MIN_VAL
+	
 	init(signal) := case
 			fault=0 & (abs(world.out + noise) <=world.MAX_VAL) : world.out + noise;
 			fault=0 & ((world.out + noise) > world.MAX_VAL) : world.MAX_VAL;
@@ -37,33 +58,43 @@ ASSIGN
 			next(fault)=0 & ((next(world.out) + next(noise)) < world.MIN_VAL) : world.MIN_VAL;
 			TRUE : -10..10;
 			esac;
+			
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-MODULE main               			       --the voter
+-- Main module will work as the voter here
+
+MODULE main               			       
 
 DEFINE
-	HW_PERSISTENCE := 4;                           --hardware persistence 
-	MC_PERSISTENCE := 4;                           --miscompare persistence
-    	MC_val_threshold := 2;                         --two sensor miscompare if their signal value differ more than this threshold
+	HW_PERSISTENCE := 4;                           -- hardware persistence 
+	MC_PERSISTENCE := 4;                           -- miscompare persistence
+    	MC_val_threshold := 2;                         -- two sensor miscompare if their signal value differ more than this threshold
 
 VAR
-   	rWorld : realWorld();
-	sensor1 : sensor(rWorld);
-	sensor2 : sensor(rWorld);
-	sensor3 : sensor(rWorld);
-	hw_count1: 0..HW_PERSISTENCE;                  --variable to measure hardware error persistence of sensor 1
-	hw_count2: 0..HW_PERSISTENCE;                  --variable to measure hardware error persistence of sensor 2
-	hw_count3: 0..HW_PERSISTENCE;                  --variable to measure hardware error persistence of sensor 3
-	mc_count1: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 1 with sensor 2 and 3
-	mc_count2: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 2 with sensor 3 and 1
-	mc_count3: 0..MC_PERSISTENCE;                  --variable to measure miscompare persistence of sensor 3 with sensor 1 snd 2
-	isolated1 : boolean;                           --TRUE if sensor 1 is isolated
-	isolated2 : boolean;                           --TRUE if sensor 2 is isolated
-	isolated3 : boolean;                           --TRUE if sendor 3 is isolated
-	landmark : {"reset", "thres_hit"};
+   	rWorld : realWorld();			       -- Instance of the realWorld module
+	
+	sensor1 : sensor(rWorld);		       -- First Instance of sensor module
+	sensor2 : sensor(rWorld);		       -- Second instance of sensor module
+	sensor3 : sensor(rWorld);		       -- Third instance of sensor module
+	
+	hw_count1: 0..HW_PERSISTENCE;                  -- variable to measure hardware error persistence of sensor 1
+	hw_count2: 0..HW_PERSISTENCE;                  -- variable to measure hardware error persistence of sensor 2
+	hw_count3: 0..HW_PERSISTENCE;                  -- variable to measure hardware error persistence of sensor 3
+	
+	mc_count1: 0..MC_PERSISTENCE;                  -- variable to measure miscompare persistence of sensor 1 with sensor 2 and 3
+	mc_count2: 0..MC_PERSISTENCE;                  -- variable to measure miscompare persistence of sensor 2 with sensor 3 and 1
+	mc_count3: 0..MC_PERSISTENCE;                  -- variable to measure miscompare persistence of sensor 3 with sensor 1 snd 2
+	
+	isolated1 : boolean;                           -- TRUE if sensor 1 is isolated
+	isolated2 : boolean;                           -- TRUE if sensor 2 is isolated
+	isolated3 : boolean;                           -- TRUE if sendor 3 is isolated
+	
+	landmark : {"reset", "thres_hit"};             -- variable to indicate if the miscompare variable reached threshold or did reset
 	
 
 ASSIGN 
+	
 	init(isolated1) := FALSE;
 	next(isolated1) := case
 				(hw_count1=HW_PERSISTENCE) | (numActive=3 & mc_count1=MC_PERSISTENCE) : TRUE;

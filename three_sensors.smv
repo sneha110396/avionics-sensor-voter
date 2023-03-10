@@ -193,7 +193,9 @@ ASSIGN
 				TRUE : mc_count3;
 				esac;
 				
-
+`	-- We need "landmark" when there are only two valid sensors
+	-- landmark will take the value "reset", if the working miscompare count has done reset previously
+	-- landmark will take thw value "thres_hit" if the working miscompare count has reached the threshold previously
 
 	init(landmark):= "reset";
 	next(landmark):= case
@@ -208,18 +210,30 @@ ASSIGN
 				
 							
 DEFINE
+	-- calculating the differences between the signal values of the sensors
+	
 	diff_12 := abs(sensor1.signal - sensor2.signal);
 	diff_23 := abs(sensor2.signal - sensor3.signal);
 	diff_13 := abs(sensor1.signal - sensor3.signal);
+	
+	-- Two sensors are said to be miscomparing if the differences between their signal values is more than the threshold
+	-- When there are three active sensors, i'th sensor is miscomparing if it is miscomparing with both the sensors
+	
 	miscompare3 :=  (diff_13 > MC_val_threshold) & (diff_23 > MC_val_threshold);
 	miscompare2 :=  (diff_12 > MC_val_threshold) & (diff_23 > MC_val_threshold);
 	miscompare1 :=  (diff_13 > MC_val_threshold) & (diff_12 > MC_val_threshold);
+	
+	-- Calculating number of active sensors at each step
+	
 	numActive := case
 			!isolated1 & !isolated2 & !isolated3 : 3;
 			(isolated1 & !isolated2 & !isolated3) | (!isolated1 & isolated2 & !isolated3) | (!isolated1 & !isolated2 & isolated3) : 2;
 			(isolated1 & isolated2 & !isolated3) | (!isolated1 & isolated2 & isolated3) | (isolated1 & !isolated2 & isolated3) : 1;
 			isolated1 & isolated2 & isolated3 : 0;
 			esac;
+			
+	-- Output signal is the average value the signal values of all the active sensors
+			
 	outputSignal := case
 			numActive=3 : (sensor1.signal + sensor2.signal + sensor3.signal)/3;
 			numActive=2 & isolated1: (sensor2.signal + sensor3.signal)/2;
@@ -230,6 +244,9 @@ DEFINE
 			numActive=1 & isolated3 & isolated1 : sensor2.signal;
 			numActive=0 : -100;
 			esac;
+			
+	-- When there are three active sensors, output will be valid
+	-- When there are two active sensors and 
 
 	outputValid := case 
 						numActive=3 : TRUE;

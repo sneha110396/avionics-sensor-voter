@@ -287,9 +287,9 @@ INVAR !((isolated[2]=FALSE & sensor2.fault!=0) & (isolated[3]=FALSE & sensor3.fa
 
 -- If the system has reached numActive=2, it can not go back to numActive=3. Similarly for numActive=1 and 0
 
-CTLSPEC AG(numActive=2-> (AG(numActive!=3)))
-CTLSPEC AG(numActive=1-> (AG(numActive!=2)))
-CTLSPEC AG(numActive=0-> (!EF(numActive=1)))
+LTLSPEC G(numActive=2-> (G(numActive!=3)))
+LTLSPEC G(numActive=1-> (G(numActive!=2)))
+LTLSPEC G(numActive=0-> (G(numActive!=1)))
 
 -- If the system is in numActive 3, it is possible to reach numActive 2 and so on
  
@@ -305,10 +305,10 @@ CTLSPEC AG((numActive=2 & !outputValid & isolt_or_count_lt_persist) -> EF(numAct
 
 -- If numActive is three and one sensor's miscompare count reaches persistence, then it will reach numActive 2
 
-CTLSPEC AG((numActive=3 & mc_fault) -> AF(numActive=2))
+LTLSPEC G((numActive=3 & mc_fault) -> F(numActive=2))
 
 -- If numActive is three and one sensor's hardware fault reaches persistence, then it will reach numActive 2
 
-CTLSPEC AG((numActive=3 & hw_fault) -> AF(numActive=2))
+LTLSPEC G((numActive=3 & hw_fault) -> F(numActive=2))
 
 --CTLSPEC AG((outputSignal= rWorld.out) -> AF(A[(outputSignal = rWorld.out) U ((outputSignal= rWorld.out) & outputValid)] | (outputSignal = rWorld.out)))

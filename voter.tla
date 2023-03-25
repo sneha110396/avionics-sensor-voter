@@ -2,12 +2,16 @@
 
 EXTENDS Integers, TLC, Sequences
 CONSTANTS HW_PERSISTENCE, MC_PERSISTENCE, MC_VAL_THRESHOLD, MAX_VAL, MIN_VAL
-VARIABLES numActive, outputValid, hw_count1, hw_count2, hw_count3, mc_count1, mc_count2, mc_count3, isolated1, isolated2, isolated3 
+VARIABLES world_val, noise1, noise2, noise3, fault1, fault2, fault3, numActive, outputValid, hw_count1, hw_count2, hw_count3, mc_count1, mc_count2, mc_count3, isolated1, isolated2, isolated3 
 
+init == (world_val \in MIN_VAL..MAX_VAL) /\ (noise1 \in -1..1) /\ (noise2 \in -1..1) /\ (noise3 \in -1..1) /\ (fault1 \in 0..2) /\ (fault2 \in 0..2) /\ (fault3 \in 0..2) /\ (hw_count1=0) /\ (hw_count2=0) /\ (hw_count3=0) /\ (mc_count1=0) /\ (mc_count2=0) /\ (mc_count3=0) /\ (isolated1=FALSE) /\ (isolated2=FALSE) /\ (isolated3=FALSE) /\ (numActive=3) /\ (outputValid=TRUE)
 
-\*Generating real world signal values
+\*calculating world_val
 
-world_val == RandomElement(MIN_VAL .. MAX_VAL)
+next_world_val == CASE (world_val < MAX_VAL) /\ (world_val > MIN_VAL) -> (world_val'= world_val+1) \/ (world_val'=world_val-1) \/ (world_val'=world_val)
+                  [] (world_val = MAX_VAL) -> (world_val'=world_val-1) \/ (world_val'=world_val)
+                  [] (world_val = MIN_VAL) -> (world_val'=world_val+1) \/ (world_val'=world_val)
+                  [] OTHER -> UNCHANGED world_val
 
 \*some useful functions
 
@@ -18,14 +22,6 @@ f(n,w,m) == CASE (w+n) > m -> m
 abs(x) == IF x>0 THEN x ELSE -x
 
 \*Creating sensors
-
-noise1 == RandomElement(-1..1)
-noise2 == RandomElement(-1..1)
-noise3 == RandomElement(-1..1)
-
-fault1 == RandomElement(0..2)
-fault2 == RandomElement(0..2)
-fault3 == RandomElement(0..2)
 
 signal_func(noise, fault, world, max) == IF fault=0 THEN f(noise, world, max) ELSE RandomElement(-max..max)
 
@@ -116,8 +112,7 @@ outputValid_cal == CASE numActive'=3 -> outputValid'=TRUE
                    []   numActive'=2 /\ ((mc_count1' < MC_PERSISTENCE) \/ (mc_count2' < MC_PERSISTENCE) \/ (mc_count3' < MC_PERSISTENCE)) ->outputValid'=FALSE
                    []   numActive'=1 -> outputValid'=TRUE
                    []   numActive'=0 -> outputValid'=FALSE
-                   
-init == (hw_count1=0) /\ (hw_count2=0) /\ (hw_count3=0) /\ (mc_count1=0) /\ (mc_count2=0) /\ (mc_count3=0) /\ (isolated1=FALSE) /\ (isolated2=FALSE) /\ (isolated3=FALSE) /\ (numActive=3) /\ (outputValid=TRUE)
+                 
 
 invar1 == ~((isolated1'=FALSE) /\ (fault1'#0) /\ (isolated2'=FALSE) /\ (fault2'#0))
 
@@ -127,10 +122,10 @@ invar3 == ~((isolated1'=FALSE) /\ (fault1'#0) /\ (isolated3'=FALSE) /\ (fault3'#
 
 invariants == invar1 /\ invar2 /\ invar3
 
-next == next_isolated1 /\ next_isolated2 /\ next_isolated3 /\ next_hw_count1 /\ next_hw_count2 /\ next_hw_count3 /\ next_mc_count1 /\ next_mc_count2 /\ next_mc_count3 /\ numActive_cal /\ outputValid_cal /\ invariants
+next == next_world_val /\ (noise1 \in -1..1) /\ (noise2 \in -1..1) /\ (noise3 \in -1..1) /\ (fault1 \in 0..2) /\ (fault2 \in 0..2) /\ (fault3 \in 0..2) /\ next_isolated1 /\ next_isolated2 /\ next_isolated3 /\ next_hw_count1 /\ next_hw_count2 /\ next_hw_count3 /\ next_mc_count1 /\ next_mc_count2 /\ next_mc_count3 /\ numActive_cal /\ outputValid_cal /\ invariants
 =============================================================================
 \* Modification History
-\* Last modified Fri Mar 24 10:58:43 IST 2023 by 112102006
+\* Last modified Sat Mar 25 10:42:21 IST 2023 by 112102006
 \* Created Thu Feb 02 20:09:21 IST 2023 by 112102006
 
 

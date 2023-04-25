@@ -10,11 +10,11 @@ mc_count == <<mc_count1, mc_count2, mc_count3>>
 fault == <<fault1, fault2, fault3>>
 noise == <<noise1, noise2, noise3>>
 
-init_noises == noise \in ((-1..1) \X (-1..1) \X (-1..1))
-init_faults == (fault = <<0,0,0>>)
-init_hw_counts == (hw_count = <<0,0,0>>)
-init_mc_counts ==  (mc_count = <<0,0,0>>)
-init_isolated == (isolated = <<FALSE, FALSE, FALSE>>)
+init_noises == (noise1 \in -1..1) /\ (noise2 \in -1..1) /\ (noise3 \in -1..1)
+init_faults == (fault1=0) /\ (fault2=0) /\ (fault3=0)
+init_hw_counts == (hw_count1=0) /\ (hw_count2=0) /\ (hw_count3=0)
+init_mc_counts == (mc_count1=0) /\ (mc_count2=0) /\ (mc_count3=0)
+init_isolated == (isolated1=FALSE) /\ (isolated2=FALSE) /\ (isolated3=FALSE)
 
 init ==  /\ (world_val \in MIN_VAL..MAX_VAL) 
          /\ init_noises 
@@ -62,9 +62,8 @@ hw_valid_func(flt) == IF flt=0 THEN TRUE ELSE RandomElement({TRUE, FALSE})
 \* creating three sensors
 \* each sensor has two components, signal and hw_valid
 
-sensor1 ==  [signal |-> signal_func(noise[1], fault[1], world_val, MAX_VAL), hw_valid |-> hw_valid_func(fault[1])]
-sensor2 ==  [signal |-> signal_func(noise[2], fault[2], world_val, MAX_VAL), hw_valid |-> hw_valid_func(fault[2])]
-sensor3 ==  [signal |-> signal_func(noise[3], fault[3], world_val, MAX_VAL), hw_valid |-> hw_valid_func(fault[3])]
+sensor == [i \in 1..3 |-> [signal |-> signal_func(noise[i], fault[i], world_val, MAX_VAL), hw_valid |-> hw_valid_func(fault[i])]]
+
 
 \* calculating isolated1, isolated2, isolated3
 \* sensor can be isolated if it's hw_count reaches persistence
@@ -101,9 +100,9 @@ next_hw_count_func(hw_vld, hw_cnt) == CASE (hw_vld' = FALSE \/ hw_cnt < HW_PERSI
                                       [] OTHER -> hw_cnt
 
 
-next_hw_count == /\ (hw_count1'= next_hw_count_func(sensor1.hw_valid, hw_count1))
-                 /\ (hw_count2'= next_hw_count_func(sensor2.hw_valid, hw_count2))
-                 /\ (hw_count3'= next_hw_count_func(sensor3.hw_valid, hw_count3))
+next_hw_count == /\ (hw_count1'= next_hw_count_func(sensor[1].hw_valid, hw_count1))
+                 /\ (hw_count2'= next_hw_count_func(sensor[2].hw_valid, hw_count2))
+                 /\ (hw_count3'= next_hw_count_func(sensor[3].hw_valid, hw_count3))
 
 
 
@@ -120,16 +119,18 @@ next_mc_count_func(numActv, snsr, other_snsr1, other_snsr2, mc_cnt, isoltd) ==
                         [] (numActv=2 /\ isoltd=TRUE /\ (~miscompare(other_snsr1, other_snsr2))) -> 0
                         [] OTHER ->  mc_cnt
                                  
-next_mc_count == /\ (mc_count1' = next_mc_count_func(numActive, sensor1, sensor2, sensor3, mc_count1, isolated1))
-                 /\ (mc_count2' = next_mc_count_func(numActive, sensor2, sensor1, sensor3, mc_count2, isolated2))
-                 /\ (mc_count3' = next_mc_count_func(numActive, sensor3, sensor2, sensor1, mc_count3, isolated3))
+next_mc_count == /\ (mc_count1' = next_mc_count_func(numActive, sensor[1], sensor[2], sensor[3], mc_count1, isolated1))
+                 /\ (mc_count2' = next_mc_count_func(numActive, sensor[2], sensor[1], sensor[3], mc_count2, isolated2))
+                 /\ (mc_count3' = next_mc_count_func(numActive, sensor[3], sensor[2], sensor[1], mc_count3, isolated3))
 
                  
 \*calculating outputValid
 
+all_mc_counts_lt_persist == (mc_count1' < MC_PERSISTENCE) /\ (mc_count2' < MC_PERSISTENCE) /\ (mc_count3' < MC_PERSISTENCE)
+
 outputValid_cal == CASE numActive'=3 -> outputValid'=TRUE
-                   []   numActive'=2 /\ (mc_count1' < MC_PERSISTENCE) /\ (mc_count2' < MC_PERSISTENCE) /\ (mc_count3' < MC_PERSISTENCE) -> outputValid'=TRUE
-                   []   numActive'=2 /\ ((mc_count1' < MC_PERSISTENCE) \/ (mc_count2' < MC_PERSISTENCE) \/ (mc_count3' < MC_PERSISTENCE)) ->outputValid'=FALSE
+                   []   numActive'=2 /\ all_mc_counts_lt_persist -> outputValid'=TRUE
+                   []   numActive'=2 /\ (~ all_mc_counts_lt_persist) -> outputValid'=FALSE
                    []   numActive'=1 -> outputValid'=TRUE
                    []   numActive'=0 -> outputValid'=FALSE
                  
@@ -156,8 +157,8 @@ next == /\ next_world_val
         /\ invariants
 =============================================================================
 \* Modification History
+\* Last modified Tue Apr 25 10:30:07 IST 2023 by 112102006
 \* Last modified Tue Apr 25 08:19:29 IST 2023 by sumi1
-\* Last modified Thu Mar 30 18:37:59 IST 2023 by 112102006
 \* Created Thu Feb 02 20:09:21 IST 2023 by 112102006
 
 

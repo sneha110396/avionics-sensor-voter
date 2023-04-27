@@ -155,10 +155,15 @@ next == /\ next_world_val
         /\ next_numActive 
         /\ outputValid_cal 
         /\ invariants
+        
+hw_fault == (hw_count[1] = HW_PERSISTENCE) \/ (hw_count[2] = HW_PERSISTENCE) \/ (hw_count[3] = HW_PERSISTENCE) 
+
+mc_fault == (mc_count[1] = MC_PERSISTENCE) \/ (mc_count[2] = MC_PERSISTENCE) \/ (mc_count[3] = MC_PERSISTENCE)
+
 =============================================================================
 \* Modification History
+\* Last modified Thu Apr 27 00:43:11 IST 2023 by sumi1
 \* Last modified Tue Apr 25 10:30:07 IST 2023 by 112102006
-\* Last modified Tue Apr 25 08:19:29 IST 2023 by sumi1
 \* Created Thu Feb 02 20:09:21 IST 2023 by 112102006
 
 

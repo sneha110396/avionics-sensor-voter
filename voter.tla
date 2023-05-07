@@ -32,7 +32,9 @@ abs(x) == IF x>0 THEN x ELSE -x
 init_noises == (noise1 \in -1..1) /\ (noise2 \in -1..1) /\ (noise3 \in -1..1)
 init_faults == (fault1=0) /\ (fault2=0) /\ (fault3=0)
 init_hw_valid == (hw_valid1=TRUE) /\ (hw_valid2=TRUE) /\ (hw_valid3=TRUE)
-init_signal == (signal1=sig_w_noise(noise1, world_val, MAX_VAL)) /\ (signal2=sig_w_noise(noise2, world_val, MAX_VAL)) /\ (signal3=sig_w_noise(noise3, world_val, MAX_VAL))
+init_signal == (signal1=sig_w_noise(noise1, world_val, MAX_VAL)) 
+                /\ (signal2=sig_w_noise(noise2, world_val, MAX_VAL)) 
+                /\ (signal3=sig_w_noise(noise3, world_val, MAX_VAL))
 init_hw_counts == (hw_count1=0) /\ (hw_count2=0) /\ (hw_count3=0)
 init_mc_counts == (mc_count1=0) /\ (mc_count2=0) /\ (mc_count3=0)
 init_isolated == (isolated1=FALSE) /\ (isolated2=FALSE) /\ (isolated3=FALSE)
@@ -184,7 +186,7 @@ mc_fault == (mc_count[1] = MC_PERSISTENCE) \/ (mc_count[2] = MC_PERSISTENCE) \/ 
 
 =============================================================================
 \* Modification History
-\* Last modified Tue May 02 17:24:40 IST 2023 by sumi1
+\* Last modified Sun May 07 08:37:04 IST 2023 by sumi1
 \* Last modified Tue Apr 25 10:30:07 IST 2023 by 112102006
 \* Created Thu Feb 02 20:09:21 IST 2023 by 112102006
 

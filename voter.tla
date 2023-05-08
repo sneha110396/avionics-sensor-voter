@@ -1,9 +1,21 @@
 ------------------------------- MODULE voter -------------------------------
+\* created by Sneha Chakraborty
+\* A part of MTech project
+\* IIT Palakkad
 
 EXTENDS Integers, TLC, Sequences
 CONSTANTS HW_PERSISTENCE, MC_PERSISTENCE, MC_VAL_THRESHOLD, MAX_VAL, MIN_VAL
-VARIABLES world_val, noise1, noise2, noise3, fault1, fault2, fault3, signal1, signal2, signal3, hw_valid1, hw_valid2, hw_valid3, numActive, outputValid, hw_count1, hw_count2, hw_count3, mc_count1, mc_count2, mc_count3, isolated1, isolated2, isolated3 
 
+\* Variable to generate real world signal values
+VARIABLE world_val
+
+\* Variables for sensors
+VARIABLES noise1, noise2, noise3, fault1, fault2, fault3, signal1, signal2, signal3, hw_valid1, hw_valid2, hw_valid3
+
+\* Variables for voter
+VARIABLES numActive, outputValid, hw_count1, hw_count2, hw_count3, mc_count1, mc_count2, mc_count3, isolated1, isolated2, isolated3 
+
+\*useful tuples
 isolated == <<isolated1, isolated2, isolated3>>
 hw_count == <<hw_count1, hw_count2, hw_count3>>
 mc_count == <<mc_count1, mc_count2, mc_count3>>
@@ -27,18 +39,28 @@ sig_w_noise(nois, wrld, max) == CASE (wrld + nois) > max -> max
 
 abs(x) == IF x>0 THEN x ELSE -x
 
-\* initial conditions
-
+\* Initially noise can be any random value between -1 to 1
 init_noises == (noise1 \in -1..1) /\ (noise2 \in -1..1) /\ (noise3 \in -1..1)
+
+\* Initially sensors has no fault. Hence faults are 0
 init_faults == (fault1=0) /\ (fault2=0) /\ (fault3=0)
+
+\* Initially hw_valid is TRUE
 init_hw_valid == (hw_valid1=TRUE) /\ (hw_valid2=TRUE) /\ (hw_valid3=TRUE)
-init_signal == (signal1=sig_w_noise(noise1, world_val, MAX_VAL)) 
+
+\* Initially signal will be according to the function we have defined previously
+init_signal ==  /\ (signal1=sig_w_noise(noise1, world_val, MAX_VAL)) 
                 /\ (signal2=sig_w_noise(noise2, world_val, MAX_VAL)) 
                 /\ (signal3=sig_w_noise(noise3, world_val, MAX_VAL))
+                
+\* Initially harware counts and miscompare counts are 0
 init_hw_counts == (hw_count1=0) /\ (hw_count2=0) /\ (hw_count3=0)
 init_mc_counts == (mc_count1=0) /\ (mc_count2=0) /\ (mc_count3=0)
+
+\* Initially no sensors are isolated
 init_isolated == (isolated1=FALSE) /\ (isolated2=FALSE) /\ (isolated3=FALSE)
 
+\* initial conditions
 init ==  /\ (world_val \in MIN_VAL..MAX_VAL) 
          /\ init_noises 
          /\ init_faults 
@@ -66,7 +88,8 @@ next_hw_valid == /\ IF fault1=0 THEN hw_valid1' = TRUE ELSE hw_valid1' \in {TRUE
                  /\ IF fault2=0 THEN hw_valid2' = TRUE ELSE hw_valid2' \in {TRUE, FALSE}
                  /\ IF fault3=0 THEN hw_valid3' = TRUE ELSE hw_valid3' \in {TRUE, FALSE}
 
-\*creating sensors
+\* creating sensors
+\* each sensors has two components, signal and hw_valid
 
 sensor1 == [signal |-> signal1 , hw_valid |-> hw_valid1]
 sensor2 == [signal |-> signal2 , hw_valid |-> hw_valid2]
@@ -119,7 +142,6 @@ next_hw_count == /\ (hw_count1'= next_hw_count_func(sensor1.hw_valid, hw_count1)
 
 
 \* calculating miscompare counts
-
 \* Two sensors are said to miscompare if the absolute difference between their signal values if greater than threshold
 
 miscompare(i,j) == abs(i.signal' - j.signal') > MC_VAL_THRESHOLD
@@ -155,7 +177,9 @@ next_outputValid == CASE numActive'=3 -> outputValid'=TRUE
                    []   numActive'=2 /\ (~ all_mc_counts_lt_persist) -> outputValid'=FALSE
                    []   numActive'=1 -> outputValid'=TRUE
                    []   numActive'=0 -> outputValid'=FALSE
-                 
+
+\* Declaring invariants
+\* properties to be satisfied in every state
 
 invar1 == ~((isolated1'=FALSE) /\ (fault1'#0) /\ (isolated2'=FALSE) /\ (fault2'#0))
 
@@ -165,9 +189,13 @@ invar3 == ~((isolated1'=FALSE) /\ (fault1'#0) /\ (isolated3'=FALSE) /\ (fault3'#
 
 invariants == invar1 /\ invar2 /\ invar3
 
+\* noises can take any random value between -1 and 1 in each step
 next_noises == (noise1' \in -1..1) /\ (noise2' \in -1..1) /\ (noise3' \in -1..1)
+
+\* faults can take any random value between 0 to 2 in each step
 next_faults == (fault1' \in 0..2) /\ (fault2' \in 0..2) /\ (fault3' \in 0..2)
 
+\* next conditions
 next == /\ next_world_val 
         /\ next_noises 
         /\ next_faults
@@ -179,9 +207,11 @@ next == /\ next_world_val
         /\ next_numActive 
         /\ next_outputValid 
         /\ invariants
-        
+
+\* Any one of the hardware count reaches persistence
 hw_fault == (hw_count[1] = HW_PERSISTENCE) \/ (hw_count[2] = HW_PERSISTENCE) \/ (hw_count[3] = HW_PERSISTENCE) 
 
+\*Anyone of the miscompare count reaches persistence
 mc_fault == (mc_count[1] = MC_PERSISTENCE) \/ (mc_count[2] = MC_PERSISTENCE) \/ (mc_count[3] = MC_PERSISTENCE)
 
 =============================================================================

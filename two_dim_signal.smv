@@ -10,8 +10,10 @@ DEFINE
 	MIN_VAL:= -5;		  -- minimum value of the signal
 
 VAR
-	out : array 1..2 of MIN_VAL..MAX_VAL;   -- variable to generate random signal values between MIN_VAL and MAX_VAL
+	out : array 1..2 of MIN_VAL..MAX_VAL;   -- generating two dimensional signal values
+						-- each component takes a random value between MIN_VAL and MAX_VAL
 
+-- In each step, each component of out can increase by 1, decrease by 1 or stay same
 ASSIGN 
 	
 	next(out[1]) := case
@@ -42,9 +44,10 @@ VAR
 	                           		-- 1 means signal is an arbitrary value
 				   		-- 2 means hw_valid may not be correct
 				   
-	noise: array 1..2 of -1..1;            -- noise is an array with two component. Each component can be between -1 to 1
+	noise: array 1..2 of -1..1;             -- noise is an array with two component. Each component can be between -1 to 1
 	
 	signal: array 1..2 of (world.MIN_VAL) .. (world.MAX_VAL); 
+						-- signal is a two dimansional array
 	
 	
 
@@ -54,18 +57,16 @@ ASSIGN
 	-- each step it will take arbitrary value between 0 and 2
 	
 				
-
-	
 -- hw_valid will take any arbitraey boolean value
 -- If fault = 0, hw_valid will be TRUE
 	
 INVAR (fault=0 -> hw_valid=TRUE)
 
 -- signal can take any arbitrary value between MIN_VAL and MAX_VAL
--- If fault is 0, signal value will be realWorld value + noise
--- If the signal value exceeds the MAX_VAL, we will set the signal value as MAX_VAL
--- If signal value becomes less than MIN_VAL, we will set the signal value as MIN_VAL
--- If fault is not 0, signal can take any arbitrary value between MAX_VAL and MIN_VAL
+-- If fault is 0, signal value will be componentwise sum of realWorld value and noise
+-- If any component of signal value exceeds the MAX_VAL, we will set it as MAX_VAL
+-- If any component of signal value becomes less than MIN_VAL, we will set it as MIN_VAL
+-- If fault is not 0, both components of signal can take any arbitrary value between MAX_VAL and MIN_VAL
 	
 
 INVAR (fault=0 & (abs(world.out[1] + noise[1]) <=world.MAX_VAL)) -> (signal[1] = world.out[1] + noise[1])
@@ -95,11 +96,11 @@ VAR
 	sensor2 : sensor(rWorld);		       -- Second instance of sensor module
 	sensor3 : sensor(rWorld);		       -- Third instance of sensor module
 	
-	hw_count: array 1..3 of 0..HW_PERSISTENCE;                  -- variable to measure hardware error persistence
+	hw_count: array 1..3 of 0..HW_PERSISTENCE;     -- variable to measure hardware error persistence
 	
-	mc_count: array 1..3 of 0..MC_PERSISTENCE;                  -- variable to measure miscompare persistence
+	mc_count: array 1..3 of 0..MC_PERSISTENCE;     -- variable to measure miscompare persistence
 
-	isolated: array 1..3 of boolean;                           -- TRUE if sensors are isolated
+	isolated: array 1..3 of boolean;               -- TRUE if sensors are isolated
 	
 	landmark : {"reset", "thres_hit"};             -- variable to indicate if the miscompare variable reached threshold or did reset
 	
@@ -107,25 +108,27 @@ VAR
 ASSIGN 
 
 	-- Initially, value of isolated is FALSE for all sensors
+	
+	init(isolated[1]) := FALSE;
+	init(isolated[2]) := FALSE;
+	init(isolated[3]) := FALSE;
+	
 	-- If hardware count of a sensor reaches hardware persisitence, sensor will be isolated
 	-- If number of active sensors is three and miscopmpare count of that sensor reaches miscompare persistence, sensor will be isolated
 	-- isolated will be TRUE is the corresponding sensor is isolated
 	
-	init(isolated[1]) := FALSE;
 	next(isolated[1]) := case
 				(hw_count[1]=HW_PERSISTENCE) | (numActive=3 & mc_count[1]=MC_PERSISTENCE) : TRUE;
 				isolated[1] : TRUE;
 				TRUE : FALSE;
 				esac;
 				
-	init(isolated[2]) := FALSE;
 	next(isolated[2]) := case
 				(hw_count[2]=HW_PERSISTENCE) | (numActive=3 & mc_count[2]=MC_PERSISTENCE) : TRUE;
 				isolated[2] : TRUE;
 				TRUE : FALSE;
 				esac;
 				
-	init(isolated[3]) := FALSE;
 	next(isolated[3]) := case
 				(hw_count[3]=HW_PERSISTENCE) | (numActive=3 & mc_count[3]=MC_PERSISTENCE) : TRUE;
 				isolated[3] : TRUE;
@@ -133,23 +136,27 @@ ASSIGN
 				esac;
 				
 	-- Value of hardware count is zero initially for all sensors
-	-- If hardware flag of some sensor if FALSE, then hardware count will increase by one, provided it is less than the persistence level
 	
 	init(hw_count[1]) := 0;
+	init(hw_count[2]) := 0;
+	init(hw_count[3]) := 0;
+	
+	-- If hardware flag of some sensor if FALSE, then hardware count will increase by one, provided it is less than the persistence level
+	
 	next(hw_count[1]) := case
 				(next(sensor1.hw_valid) = FALSE) & (hw_count[1]<HW_PERSISTENCE) : hw_count[1]+1;
 				next(sensor1.hw_valid) = TRUE : 0;
 				hw_count[1]=HW_PERSISTENCE : HW_PERSISTENCE;
 				TRUE : hw_count[1];
 				esac;
-	init(hw_count[2]) := 0;
+	
 	next(hw_count[2]) := case
 				(next(sensor2.hw_valid) = FALSE) & (hw_count[2]<HW_PERSISTENCE) : hw_count[2]+1;
 				next(sensor2.hw_valid) = TRUE : 0;
 				hw_count[2]=HW_PERSISTENCE : HW_PERSISTENCE;
 				TRUE : hw_count[2];
 				esac;
-	init(hw_count[3]) := 0;
+	
 	next(hw_count[3]) := case
 				(next(sensor3.hw_valid) = FALSE) & (hw_count[3]<HW_PERSISTENCE) : hw_count[3]+1;
 				next(sensor3.hw_valid) = TRUE : 0;
@@ -158,46 +165,55 @@ ASSIGN
 				esac;
 				
 	-- Miscompare count will be zero initially for all the sensors
+	
+	init(mc_count[1]) := 0;
+	init(mc_count[2]) := 0;
+	init(mc_count[3]) := 0;
+	
 	-- When there are three active sensors, it will increase by one if the respective sensor is miscomparing
 	-- When there are two active sensors and the respective sensor is isolated, it will count the miscompare between the other two sensors
 	-- When the output is valid, it will increment it's value when there is a miscompare and and reset it's value if miscompare clears
 	-- When output is not valid, it will increment if there is a miscompare, decrement otherwise
 	
-	init(mc_count[1]) := 0;
 	next(mc_count[1]) := case
 	                        -- three active sensors
+				
 				(next(numActive)=3) & next(miscompare12)=TRUE & next(miscompare31)=TRUE & (mc_count[1]<MC_PERSISTENCE) : mc_count[1] +1;
 				(next(numActive)=3) & (next(miscompare12)=FALSE | next(miscompare31)=FALSE) & (mc_count[1]<MC_PERSISTENCE): 0;
 				(numActive=3) & (mc_count[1]=MC_PERSISTENCE) : 0;
 				
 				-- two active sensors
+				
 				next(numActive)=2 & next(isolated[1])=TRUE & (next(miscompare23) =TRUE) & (mc_count[1] < MC_PERSISTENCE): mc_count[1]+1;
 				next(numActive)=2 & next(isolated[1])=TRUE & next(landmark)= "reset" & (next(miscompare23) = FALSE) : 0;
 				next(numActive)=2 & next(isolated[1])=TRUE & next(landmark)= "thres_hit" & (next(miscompare23) = FALSE) & (mc_count[1] >0) : mc_count[1] - 1;
 				TRUE : mc_count[1];
 				esac;
 				
-	init(mc_count[2]) := 0;
 	next(mc_count[2]) := case
 				-- three active sensors
+				
 				(next(numActive)=3) & next(miscompare12)=TRUE & next(miscompare23)=TRUE & (mc_count[2]<MC_PERSISTENCE) : mc_count[2] +1;
 				(next(numActive)=3) & (next(miscompare12)=FALSE | next(miscompare23)=FALSE) & (mc_count[2]<MC_PERSISTENCE): 0;
 				(numActive=3) & (mc_count[2]=MC_PERSISTENCE) : 0;
 
 				-- two active sensors
+				
 				next(numActive)=2 & next(isolated[2])=TRUE & (next(miscompare31)=TRUE) & (mc_count[2] < MC_PERSISTENCE): mc_count[2]+1;
 				next(numActive)=2 & next(isolated[2])=TRUE & next(landmark)="reset" & (next(miscompare31)=FALSE) : 0;
 				next(numActive)=2 & next(isolated[2])=TRUE & next(landmark)="thres_hit" & (next(miscompare31)=FALSE) & (mc_count[2] >0) : mc_count[2] - 1;
 				TRUE : mc_count[2];
 				esac;
-	init(mc_count[3]) := 0;
+				
 	next(mc_count[3]) := case
 				--- three active sensors
+				
 				next(numActive)=3 & next(miscompare31)=TRUE & next(miscompare23)=TRUE & (mc_count[3]<MC_PERSISTENCE) : mc_count[3] +1;
 				next(numActive)=3 & (next(miscompare31)=FALSE | next(miscompare23)=FALSE) & (mc_count[3]<MC_PERSISTENCE) : 0;
 				(numActive=3) & (mc_count[3]=MC_PERSISTENCE) : 0;
 
 				-- two active sensors
+				
 				next(numActive)=2 & next(isolated[3])=TRUE & (next(miscompare12)=TRUE) & (mc_count[3] < MC_PERSISTENCE): mc_count[3]+1;
 				next(numActive)=2 & next(isolated[3])=TRUE & next(landmark)="reset" & (next(miscompare12)=FALSE) : 0;
 				next(numActive)=2 & next(isolated[3])=TRUE & next(landmark)="thres_hit" & (next(miscompare12)=FALSE) & (mc_count[3] >0) : mc_count[3] - 1;
@@ -221,32 +237,57 @@ ASSIGN
 				
 							
 DEFINE
+	-- compute the absolute differences of each components of one sensor with the other sensor
+	-- If any of them is greater than threshold, we will say the sensors are miscomapring
 	
-	miscompare12 :=  (abs(sensor1.signal[1] - sensor2.signal[1]) > MC_val_threshold) | (abs(sensor1.signal[2] - sensor2.signal[2]) > MC_val_threshold) ;
-	miscompare23 :=  (abs(sensor2.signal[1] - sensor3.signal[1]) > MC_val_threshold) | (abs(sensor2.signal[2] - sensor3.signal[2]) > MC_val_threshold) ;
-	miscompare31 :=  (abs(sensor3.signal[1] - sensor1.signal[1]) > MC_val_threshold) | (abs(sensor3.signal[2] - sensor1.signal[2]) > MC_val_threshold) ;
+	-- miscomparison of sensor1 and sensor2
+	miscompare12 :=  (abs(sensor1.signal[1] - sensor2.signal[1]) > MC_val_threshold) | (abs(sensor1.signal[2] - sensor2.signal[2]) > MC_val_threshold);
+	
+	-- miscomparison of sensor2 and sensor3
+	miscompare23 :=  (abs(sensor2.signal[1] - sensor3.signal[1]) > MC_val_threshold) | (abs(sensor2.signal[2] - sensor3.signal[2]) > MC_val_threshold);
+	
+	-- miscomparison of sensor3 and sensor1
+	miscompare31 :=  (abs(sensor3.signal[1] - sensor1.signal[1]) > MC_val_threshold) | (abs(sensor3.signal[2] - sensor1.signal[2]) > MC_val_threshold);
 
 	-- Calculating number of active sensors at each step
 	
+	none_isolated := !isolated[1] & !isolated[2] & !isolated[3];
+	one_isolated := (isolated[1] & !isolated[2] & !isolated[3]) | (!isolated[1] & isolated[2] & !isolated[3]) | (!isolated[1] & !isolated[2] & isolated[3]);
+	two_isolated := (isolated[1] & isolated[2] & !isolated[3]) | (!isolated[1] & isolated[2] & isolated[3]) | (isolated[1] & !isolated[2] & isolated[3]);
+	all_isolated := isolated[1] & isolated[2] & isolated[3];
+	
 	numActive := case
-			!isolated[1] & !isolated[2] & !isolated[3] : 3;
-			(isolated[1] & !isolated[2] & !isolated[3]) | (!isolated[1] & isolated[2] & !isolated[3]) | (!isolated[1] & !isolated[2] & isolated[3]) : 2;
-			(isolated[1] & isolated[2] & !isolated[3]) | (!isolated[1] & isolated[2] & isolated[3]) | (isolated[1] & !isolated[2] & isolated[3]) : 1;
-			isolated[1] & isolated[2] & isolated[3] : 0;
+			none_isolated : 3;
+			one_isolated : 2;
+			two_isolated : 1;
+			all_isolated : 0;
 			esac;
 			
 	-- Output signal is the average value the signal values of all the active sensors
+	-- outputSignal1 is the first component of the output signal
+	-- outputSignal2 is the second component of the output signal
 			
-	--outputSignal := case
-	--		numActive=3 : (sensor1.signal + sensor2.signal + sensor3.signal)/3;
-	--		numActive=2 & isolated[1]: (sensor2.signal + sensor3.signal)/2;
-	--		numActive=2 & isolated[2]: (sensor3.signal + sensor1.signal)/2;
-	--		numActive=2 & isolated[3]: (sensor1.signal + sensor2.signal)/2;
-	--		numActive=1 & isolated[1] & isolated[2] : sensor3.signal;
-	--		numActive=1 & isolated[2] & isolated[3] : sensor1.signal;
-	--		numActive=1 & isolated[3] & isolated[1] : sensor2.signal;
-	--		numActive=0 : -100;
-	--		esac;
+	outputSignal1 := case
+			numActive=3 : (sensor1.signal[1] + sensor2.signal[1] + sensor3.signal[1])/3;
+			numActive=2 & isolated[1]: (sensor2.signal[1] + sensor3.signal[1])/2;
+			numActive=2 & isolated[2]: (sensor3.signal[1] + sensor1.signal[1])/2;
+			numActive=2 & isolated[3]: (sensor1.signal[1] + sensor2.signal[1])/2;
+			numActive=1 & isolated[1] & isolated[2] : sensor3.signal[1];
+			numActive=1 & isolated[2] & isolated[3] : sensor1.signal[1];
+			numActive=1 & isolated[3] & isolated[1] : sensor2.signal[1];
+			numActive=0 : -100;
+			esac;
+			
+	outputSignal2 := case
+			numActive=3 : (sensor1.signal[2] + sensor2.signal[2] + sensor3.signal[2])/3;
+			numActive=2 & isolated[1]: (sensor2.signal[2] + sensor3.signal[2])/2;
+			numActive=2 & isolated[2]: (sensor3.signal[2] + sensor1.signal[2])/2;
+			numActive=2 & isolated[3]: (sensor1.signal[2] + sensor2.signal[2])/2;
+			numActive=1 & isolated[1] & isolated[2] : sensor3.signal[2];
+			numActive=1 & isolated[2] & isolated[3] : sensor1.signal[2];
+			numActive=1 & isolated[3] & isolated[1] : sensor2.signal[2];
+			numActive=0 : -100;
+			esac;
 			
 	-- When there are three active sensors, output will be valid
 	-- When there are two active sensors and the corresponding miscompare count has reached threshold, then output is not valid

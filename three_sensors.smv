@@ -76,11 +76,11 @@ VAR
 	sensor2 : sensor(rWorld);		       -- Second instance of sensor module
 	sensor3 : sensor(rWorld);		       -- Third instance of sensor module
 	
-	hw_count: array 1..3 of 0..HW_PERSISTENCE;                  -- variable to measure hardware error persistence
+	hw_count: array 1..3 of 0..HW_PERSISTENCE;     -- variable to measure hardware error persistence
 	
-	mc_count: array 1..3 of 0..MC_PERSISTENCE;                  -- variable to measure miscompare persistence
+	mc_count: array 1..3 of 0..MC_PERSISTENCE;     -- variable to measure miscompare persistence
 
-	isolated: array 1..3 of boolean;                           -- TRUE if sensors are isolated
+	isolated: array 1..3 of boolean;               -- TRUE if sensors are isolated
 	
 	landmark : {"reset", "thres_hit"};             -- variable to indicate if the miscompare variable reached threshold or did reset
 	
@@ -88,25 +88,27 @@ VAR
 ASSIGN 
 
 	-- Initially, value of isolated is FALSE for all sensors
+	
+	init(isolated[1]) := FALSE;
+	init(isolated[2]) := FALSE;
+	init(isolated[3]) := FALSE;
+	
 	-- If hardware count of a sensor reaches hardware persisitence, sensor will be isolated
 	-- If number of active sensors is three and miscopmpare count of that sensor reaches miscompare persistence, sensor will be isolated
 	-- isolated will be TRUE is the corresponding sensor is isolated
 	
-	init(isolated[1]) := FALSE;
 	next(isolated[1]) := case
 				(hw_count[1]=HW_PERSISTENCE) | (numActive=3 & mc_count[1]=MC_PERSISTENCE) : TRUE;
 				isolated[1] : TRUE;
 				TRUE : FALSE;
 				esac;
 				
-	init(isolated[2]) := FALSE;
 	next(isolated[2]) := case
 				(hw_count[2]=HW_PERSISTENCE) | (numActive=3 & mc_count[2]=MC_PERSISTENCE) : TRUE;
 				isolated[2] : TRUE;
 				TRUE : FALSE;
 				esac;
 				
-	init(isolated[3]) := FALSE;
 	next(isolated[3]) := case
 				(hw_count[3]=HW_PERSISTENCE) | (numActive=3 & mc_count[3]=MC_PERSISTENCE) : TRUE;
 				isolated[3] : TRUE;
@@ -114,23 +116,27 @@ ASSIGN
 				esac;
 				
 	-- Value of hardware count is zero initially for all sensors
-	-- If hardware flag of some sensor if FALSE, then hardware count will increase by one, provided it is less than the persistence level
 	
 	init(hw_count[1]) := 0;
+	init(hw_count[2]) := 0;
+	init(hw_count[3]) := 0;
+	
+	-- If hardware flag of some sensor if FALSE, then hardware count will increase by one, provided it is less than the persistence level
+	
 	next(hw_count[1]) := case
 				(next(sensor1.hw_valid) = FALSE) & (hw_count[1]<HW_PERSISTENCE) : hw_count[1]+1;
 				next(sensor1.hw_valid) = TRUE : 0;
 				hw_count[1]=HW_PERSISTENCE : HW_PERSISTENCE;
 				TRUE : hw_count[1];
 				esac;
-	init(hw_count[2]) := 0;
+				
 	next(hw_count[2]) := case
 				(next(sensor2.hw_valid) = FALSE) & (hw_count[2]<HW_PERSISTENCE) : hw_count[2]+1;
 				next(sensor2.hw_valid) = TRUE : 0;
 				hw_count[2]=HW_PERSISTENCE : HW_PERSISTENCE;
 				TRUE : hw_count[2];
 				esac;
-	init(hw_count[3]) := 0;
+
 	next(hw_count[3]) := case
 				(next(sensor3.hw_valid) = FALSE) & (hw_count[3]<HW_PERSISTENCE) : hw_count[3]+1;
 				next(sensor3.hw_valid) = TRUE : 0;
@@ -139,12 +145,16 @@ ASSIGN
 				esac;
 				
 	-- Miscompare count will be zero initially for all the sensors
+	
+	init(mc_count[1]) := 0;
+	init(mc_count[2]) := 0;
+	init(mc_count[3]) := 0;
+	
 	-- When there are three active sensors, it will increase by one if the respective sensor is miscomparing
 	-- When there are two active sensors and the respective sensor is isolated, it will count the miscompare between the other two sensors
 	-- When the output is valid, it will increment it's value when there is a miscompare and and reset it's value if miscompare clears
 	-- When output is not valid, it will increment if there is a miscompare, decrement otherwise
 	
-	init(mc_count[1]) := 0;
 	next(mc_count[1]) := case
 	                        -- three active sensors
 				(next(numActive)=3) & next(miscompare1)=TRUE & (mc_count[1]<MC_PERSISTENCE) : mc_count[1] +1;
@@ -158,7 +168,6 @@ ASSIGN
 				TRUE : mc_count[1];
 				esac;
 				
-	init(mc_count[2]) := 0;
 	next(mc_count[2]) := case
 				-- three active sensors
 				(next(numActive)=3) & next(miscompare2)=TRUE & (mc_count[2]<MC_PERSISTENCE) : mc_count[2] +1;
@@ -171,7 +180,7 @@ ASSIGN
 				next(numActive)=2 & next(isolated[2])=TRUE & next(landmark)="thres_hit" & (next(diff_13) <= MC_val_threshold) & (mc_count[2] >0) : mc_count[2] - 1;
 				TRUE : mc_count[2];
 				esac;
-	init(mc_count[3]) := 0;
+
 	next(mc_count[3]) := case
 				--- three active sensors
 				next(numActive)=3 & next(miscompare3)=TRUE & (mc_count[3]<MC_PERSISTENCE) : mc_count[3] +1;
@@ -209,19 +218,31 @@ DEFINE
 	diff_13 := abs(sensor1.signal - sensor3.signal);
 	
 	-- Two sensors are said to be miscomparing if the differences between their signal values is more than the threshold
-	-- When there are three active sensors, i'th sensor is miscomparing if it is miscomparing with both the sensors
+	
+	-- miscompare1 means sensor1 is miscomparing with the other two sensors
+	
+	miscompare1 :=  (diff_13 > MC_val_threshold) & (diff_12 > MC_val_threshold);
+	
+	-- miscompare2 means sensor2 is miscomparing with the other two sensors
+	
+	miscompare2 :=  (diff_12 > MC_val_threshold) & (diff_23 > MC_val_threshold);
+	
+	-- miscompare3 means sensor3 is miscomparing with the other two sensors
 	
 	miscompare3 :=  (diff_13 > MC_val_threshold) & (diff_23 > MC_val_threshold);
-	miscompare2 :=  (diff_12 > MC_val_threshold) & (diff_23 > MC_val_threshold);
-	miscompare1 :=  (diff_13 > MC_val_threshold) & (diff_12 > MC_val_threshold);
 	
 	-- Calculating number of active sensors at each step
 	
+	none_isolated := !isolated[1] & !isolated[2] & !isolated[3];
+	one_isolated := (isolated[1] & !isolated[2] & !isolated[3]) | (!isolated[1] & isolated[2] & !isolated[3]) | (!isolated[1] & !isolated[2] & isolated[3]);
+	two_isolated := (isolated[1] & isolated[2] & !isolated[3]) | (!isolated[1] & isolated[2] & isolated[3]) | (isolated[1] & !isolated[2] & isolated[3]);
+	all_isolated := isolated[1] & isolated[2] & isolated[3];
+	
 	numActive := case
-			!isolated[1] & !isolated[2] & !isolated[3] : 3;
-			(isolated[1] & !isolated[2] & !isolated[3]) | (!isolated[1] & isolated[2] & !isolated[3]) | (!isolated[1] & !isolated[2] & isolated[3]) : 2;
-			(isolated[1] & isolated[2] & !isolated[3]) | (!isolated[1] & isolated[2] & isolated[3]) | (isolated[1] & !isolated[2] & isolated[3]) : 1;
-			isolated[1] & isolated[2] & isolated[3] : 0;
+			none_isolated : 3;
+			one_isolated : 2;
+			two_isolated : 1;
+			all_isolated : 0;
 			esac;
 			
 	-- Output signal is the average value the signal values of all the active sensors
@@ -244,27 +265,42 @@ DEFINE
 	-- If there are one active sensor, output is valid
 	-- If there are no active sensors, output is not valid 
 
-	outputValid := case 
-						numActive=3 : TRUE;
-
-						numActive=2 & isolated[1] & mc_count[1]=MC_PERSISTENCE : FALSE;
-						numActive=2 & isolated[1] & mc_count[1]=0 : TRUE;
-						numActive=2 & isolated[1] & mc_count[1] < MC_PERSISTENCE & mc_count[1] > 0 & landmark="thres_hit": FALSE;
-						numActive=2 & isolated[1] & mc_count[1] < MC_PERSISTENCE & mc_count[1] > 0 & landmark="reset": TRUE;
-				
-						numActive=2 & isolated[2] & mc_count[2]=MC_PERSISTENCE : FALSE;
-						numActive=2 & isolated[2] & mc_count[2]=0 : TRUE;
-						numActive=2 & isolated[2] & mc_count[2] < MC_PERSISTENCE & mc_count[2] > 0 & landmark="thres_hit": FALSE;
-						numActive=2 & isolated[2] & mc_count[2] < MC_PERSISTENCE & mc_count[2] > 0 & landmark="reset": TRUE;
-						
-						numActive=2 & isolated[3] & mc_count[3]=MC_PERSISTENCE : FALSE;
-						numActive=2 & isolated[3] & mc_count[3]=0 : TRUE;
-						numActive=2 & isolated[3] & mc_count[3] < MC_PERSISTENCE & mc_count[3] > 0 & landmark="thres_hit": FALSE;
-						numActive=2 & isolated[3] & mc_count[3] < MC_PERSISTENCE & mc_count[3] > 0 & landmark="reset": TRUE;
-						
-						numActive=1 : TRUE;
-						numActive=0 : FALSE;
-						esac;
+	outputValid := case
+	
+			-- when there are three active sensors
+			
+			numActive=3 : TRUE;
+			
+			-- when there are two active sensors and sensor1 is isolated
+			
+			numActive=2 & isolated[1] & mc_count[1]=MC_PERSISTENCE : FALSE;
+			numActive=2 & isolated[1] & mc_count[1]=0 : TRUE;
+			numActive=2 & isolated[1] & mc_count[1] < MC_PERSISTENCE & mc_count[1] > 0 & landmark="thres_hit": FALSE;
+			numActive=2 & isolated[1] & mc_count[1] < MC_PERSISTENCE & mc_count[1] > 0 & landmark="reset": TRUE;
+			
+			-- when there are two active sensors and sensor2 is isolated
+			
+			numActive=2 & isolated[2] & mc_count[2]=MC_PERSISTENCE : FALSE;
+			numActive=2 & isolated[2] & mc_count[2]=0 : TRUE;
+			numActive=2 & isolated[2] & mc_count[2] < MC_PERSISTENCE & mc_count[2] > 0 & landmark="thres_hit": FALSE;
+			numActive=2 & isolated[2] & mc_count[2] < MC_PERSISTENCE & mc_count[2] > 0 & landmark="reset": TRUE;
+			
+			-- when there are two active sensors and sensor3 is isolated
+			
+			numActive=2 & isolated[3] & mc_count[3]=MC_PERSISTENCE : FALSE;
+			numActive=2 & isolated[3] & mc_count[3]=0 : TRUE;
+			numActive=2 & isolated[3] & mc_count[3] < MC_PERSISTENCE & mc_count[3] > 0 & landmark="thres_hit": FALSE;
+			numActive=2 & isolated[3] & mc_count[3] < MC_PERSISTENCE & mc_count[3] > 0 & landmark="reset": TRUE;
+			
+			-- when there are one active sensor
+			
+			numActive=1 : TRUE;
+			
+			-- when there are no active sensor
+			
+			numActive=0 : FALSE;
+			
+			esac;
 	
 	-- If a sensor is not isolated, then its hw_count is less than threshold (required to describe a property)
 

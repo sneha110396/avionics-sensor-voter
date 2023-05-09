@@ -214,9 +214,25 @@ hw_fault == (hw_count[1] = HW_PERSISTENCE) \/ (hw_count[2] = HW_PERSISTENCE) \/ 
 \*Anyone of the miscompare count reaches persistence
 mc_fault == (mc_count[1] = MC_PERSISTENCE) \/ (mc_count[2] = MC_PERSISTENCE) \/ (mc_count[3] = MC_PERSISTENCE)
 
+\* properties to check
+
+\* If the system has reached numActive=2, it can not go back to numActive=3. Similarly for numActive=1 and 0
+
+prop1 == [](numActive=2 => [](numActive#3))
+prop2 == [](numActive=1 => [](numActive#2))
+prop3 == [](numActive=0 => [](numActive#1))
+
+\* If numActive is three and one sensor's miscompare count reaches persistence, then it will reach numActive 2
+
+prop4 == []((numActive=3 /\ mc_fault) => <>(numActive=2))
+
+\* If numActive is three and one sensor's hardware count reaches persistence, then it will reach numActive 2
+
+prop5 == []((numActive=3 /\ hw_fault) => <>(numActive=2))
+
 =============================================================================
 \* Modification History
-\* Last modified Sun May 07 08:37:04 IST 2023 by sumi1
+\* Last modified Tue May 09 20:55:07 IST 2023 by sumi1
 \* Last modified Tue Apr 25 10:30:07 IST 2023 by 112102006
 \* Created Thu Feb 02 20:09:21 IST 2023 by 112102006
 

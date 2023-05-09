@@ -1,3 +1,9 @@
+-- created by Sneha Chakraborty
+-- A part of MTech project
+-- supervisor : Dr. Jasine Babu
+-- IIT Palakkad
+
+
 -- Module realWorld will generate signal values between a given range
 
 MODULE realWorld                    
